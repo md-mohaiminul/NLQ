@@ -272,14 +272,18 @@ def dataset_gen_bert(data, vfeat_lens, tokenizer, max_pos_len, scope, num_worker
         dataset.extend(collated_results[worker_id])
     return dataset
 
-
+# Namespace(batch_size=32, char_dim=50, char_size=None, clip_norm=1.0, dim=128, drop_rate=0.2, epochs=200, eval_gt_json='data/nlq_val.json',
+#           extend=0.1, fv='official', gpu_idx='0', highlight_lambda=5.0, init_lr=0.0001, max_pos_len=512, mode='train', model_dir='checkpoints/',
+#           model_name='vslnet', num_heads=8, num_train_steps=None, num_workers=1, period=100, predictor='bert', save_dir='datasets', seed=12345,
+#           suffix=None, task='nlq_official_v1', text_agnostic=False, video_agnostic=False, video_feature_dim=2304, warmup_proportion=0.0,
+#           word_dim=300, word_size=None)
 def gen_or_load_dataset(configs):
     if not os.path.exists(configs.save_dir):
         os.makedirs(configs.save_dir)
-    data_dir = os.path.join("data", "dataset", configs.task)
-    feature_dir = os.path.join("data", "features", configs.task, configs.fv)
+    data_dir = os.path.join("data", "dataset", configs.task)            #'data/dataset/nlq_official_v1'
+    feature_dir = os.path.join("data", "features", configs.task, configs.fv)     #'data/features/nlq_official_v1/official'
     if configs.suffix is None:
-        save_path = os.path.join(
+        save_path = os.path.join(   #'datasets/nlq_official_v1_official_512_bert.pkl'
             configs.save_dir,
             "_".join(
                 [configs.task, configs.fv, str(configs.max_pos_len), configs.predictor]
