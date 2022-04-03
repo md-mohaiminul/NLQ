@@ -20,6 +20,13 @@ from utils.runner_utils import (
     set_th_config,
 )
 
+#configs
+# Namespace(batch_size=32, char_dim=50, char_size=None, clip_norm=1.0, dim=128, drop_rate=0.2, epochs=200,
+#           eval_gt_json='data/nlq_val.json', extend=0.1, fv='official', gpu_idx='0', highlight_lambda=5.0,
+#           init_lr=0.0001, max_pos_len=512, mode='train', model_dir='checkpoints/', model_name='vslnet',
+#           num_heads=8, num_train_steps=None, num_workers=1, period=100, predictor='bert', save_dir='datasets',
+#           seed=12345, suffix=None, task='nlq_official_v1', text_agnostic=False, video_agnostic=False,
+#           video_feature_dim=2304, warmup_proportion=0.0, word_dim=300, word_size=None)
 
 def main(configs, parser):
     # set tensorflow configs

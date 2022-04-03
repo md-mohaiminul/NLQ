@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="b5756efd-4717-439b-9de5-0e229bc3db80" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/VSLNet/prepare_video_swin_features.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/VSLNet/run2.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/NLQ.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/NLQ.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2D-TAN/CODE_OF_CONDUCT.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2D-TAN/CONTRIBUTING.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2D-TAN/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2D-TAN/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2D-TAN/README_2D-TAN.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2D-TAN/SECURITY.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2D-TAN/data/ActivityNet/download.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2D-TAN/data/ActivityNet/test.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2D-TAN/data/ActivityNet/train.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/2D-TAN/data/ActivityNet/val.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/run.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/extract_features.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/extract_features2.py" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="27DnnBVl3EAYcAoSuXGt6fkt3t4" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="true" />
+  </component>
+  <component name="RunManager">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="NLQ" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="sftp://mmiemon@megatron.cs.unc.edu:22/playpen-storage/mmiemon/anaconda3/envs/ego4d/bin/python3.8" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/VSLNet" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/VSLNet/main.py" />
+      <option name="PARAMETERS" value="--task nlq_official_v1 --predictor bert --mode train --video_feature_dim 2304 --max_pos_len 512 --epochs 200 --fv official --num_workers 1 --model_dir checkpoints/ --eval_gt_json &quot;data/nlq_val.json&quot;" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="b5756efd-4717-439b-9de5-0e229bc3db80" name="Changes" comment="" />
+      <created>1648863689161</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1648863689161</updated>
+      <workItem from="1648863690702" duration="10239000" />
+      <workItem from="1648876253932" duration="773000" />
+      <workItem from="1648892692747" duration="73000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/NLQ$main.coverage" NAME="main Coverage Results" MODIFIED="1648868258954" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/VSLNet" />
+  </component>
+</project>
