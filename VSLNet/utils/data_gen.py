@@ -7,6 +7,8 @@ import numpy as np
 from nltk.tokenize import word_tokenize
 from tqdm import tqdm
 
+import clip
+
 from utils.data_util import (
     load_json,
     load_lines,
@@ -43,10 +45,10 @@ class EpisodicNLQProcessor:
             for timestamp, exact_time, sentence, ann_uid, query_idx in zipper:
                 start_time = max(0.0, float(timestamp[0]) / fps)
                 end_time = min(float(timestamp[1]) / fps, duration)
-                if self._predictor != "bert":
-                    words = word_tokenize(sentence.strip().lower(), language="english")
-                else:
+                if self._predictor == "bert" or self._predictor == 'clip':
                     words = sentence
+                else:
+                    words = word_tokenize(sentence.strip().lower(), language="english")
                 record = {
                     "sample_id": self.idx_counter,
                     "vid": str(vid),
@@ -67,6 +69,7 @@ class EpisodicNLQProcessor:
     def convert(self, data_dir, predictor=None):
         self._predictor = predictor
         self.reset_idx_counter()
+
         if not os.path.exists(data_dir):
             raise ValueError("data dir {} does not exist".format(data_dir))
         # load raw data
@@ -213,7 +216,7 @@ def dataset_gen(
     return dataset
 
 
-def dataset_gen_bert(data, vfeat_lens, tokenizer, max_pos_len, scope, num_workers=1):
+def dataset_gen_bert(data, vfeat_lens, tokenizer, max_pos_len, scope, predictor, num_workers=1):
     # Worker method for multiprocessing.
     def worker(
         worker_data, vfeat_lens, tokenizer, max_pos_len, scope, worker_id, output_q
@@ -228,6 +231,8 @@ def dataset_gen_bert(data, vfeat_lens, tokenizer, max_pos_len, scope, num_worker
                 record["s_time"], record["e_time"], vfeat_lens[vid], record["duration"]
             )
             word_ids = tokenizer(record["query"])
+            if predictor == 'clip':
+                word_ids['input_ids'] = clip.tokenize(record["query"])[0].tolist()
             result = {
                 "sample_id": record["sample_id"],
                 "vid": record["vid"],
@@ -319,9 +324,8 @@ def gen_or_load_dataset(configs):
         if val_data is None
         else [train_data, val_data, test_data]
     )
-    if configs.predictor == "bert":
+    if configs.predictor == "bert" or configs.predictor == "clip":
         from transformers import BertTokenizer, BertForPreTraining
-
         tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
         train_set = dataset_gen_bert(
             train_data,
@@ -329,6 +333,7 @@ def gen_or_load_dataset(configs):
             tokenizer,
             configs.max_pos_len,
             "train",
+            predictor=configs.predictor,
             num_workers=configs.num_workers,
         )
         if val_data:
@@ -338,6 +343,7 @@ def gen_or_load_dataset(configs):
                 tokenizer,
                 configs.max_pos_len,
                 "val",
+                predictor=configs.predictor,
                 num_workers=configs.num_workers,
             )
         else:
@@ -348,6 +354,7 @@ def gen_or_load_dataset(configs):
             tokenizer,
             configs.max_pos_len,
             "test",
+            predictor=configs.predictor,
             num_workers=configs.num_workers,
         )
         n_val = 0 if val_set is None else len(val_set)

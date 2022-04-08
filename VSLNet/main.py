@@ -75,8 +75,11 @@ def main(configs, parser):
         "_".join(
             [
                 configs.model_name,
+                'dim',
+                str(configs.dim),
                 configs.task,
                 configs.fv,
+                'max_pos_len',
                 str(configs.max_pos_len),
                 configs.predictor,
             ]
@@ -134,7 +137,7 @@ def main(configs, parser):
                     e_labels.to(device),
                     h_labels.to(device),
                 )
-                if configs.predictor == "bert":
+                if configs.predictor == "bert" or configs.predictor == "clip":
                     word_ids = {key: val.to(device) for key, val in word_ids.items()}
                     # generate mask
                     query_mask = (
@@ -165,6 +168,7 @@ def main(configs, parser):
                     start_logits, end_logits, s_labels, e_labels
                 )
                 total_loss = loc_loss + configs.highlight_lambda * highlight_loss
+
                 # compute and apply gradients
                 optimizer.zero_grad()
                 total_loss.backward()
@@ -178,6 +182,7 @@ def main(configs, parser):
                     global_step % eval_period == 0
                     or global_step % num_train_batches == 0
                 ):
+                    print('Predictor ', configs.predictor, ', loss for epoch ',epoch, ' : ',loc_loss.item(), highlight_loss.item(), total_loss.item())
                     model.eval()
                     print(
                         f"\nEpoch: {epoch + 1:2d} | Step: {global_step:5d}", flush=True

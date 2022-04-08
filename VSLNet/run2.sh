@@ -3,7 +3,7 @@ python main.py \
     --predictor bert \
     --mode train \
     --video_feature_dim 1024 \
-    --max_pos_len 1024 \
+    --max_pos_len 256 \
     --epochs 200 \
     --fv video_swin \
     --num_workers 64 \

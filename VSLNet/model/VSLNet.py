@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 from transformers import AdamW, get_linear_schedule_with_warmup
 
+import clip
+
 from model.layers import (
     Embedding,
     VisualProjection,
@@ -87,6 +89,9 @@ class VSLNet(nn.Module):
             # init parameters
             self.init_parameters()
             self.embedding_net = BertEmbedding(configs.text_agnostic)
+        elif configs.predictor == "clip":
+            self.query_affine = nn.Linear(768, configs.dim)
+            self.clip_model, preprocess = clip.load('ViT-L/14')
         else:
             self.embedding_net = Embedding(
                 num_words=configs.word_size,
@@ -119,6 +124,14 @@ class VSLNet(nn.Module):
         video_features = self.video_affine(video_features)
         if self.configs.predictor == "bert":
             query_features = self.embedding_net(word_ids)
+            query_features = self.query_affine(query_features)
+        elif self.configs.predictor == "clip":
+            x = self.clip_model.token_embedding(word_ids['input_ids']).type(self.clip_model.dtype)  # [batch_size, n_ctx, d_model]
+            x = x + self.clip_model.positional_embedding.type(self.clip_model.dtype)
+            x = x.permute(1, 0, 2)  # NLD -> LND
+            x = self.clip_model.transformer(x)
+            x = x.permute(1, 0, 2)  # LND -> NLD
+            query_features = self.clip_model.ln_final(x).type(torch.float32)
             query_features = self.query_affine(query_features)
         else:
             query_features = self.embedding_net(word_ids, char_ids)

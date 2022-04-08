@@ -450,6 +450,10 @@ class HighLightLayer(nn.Module):
 
     @staticmethod
     def compute_loss(scores, labels, mask, epsilon=1e-12):
+        #added later
+        scores = scores.clamp(0, 1)
+        scores[scores != scores] = 1
+
         labels = labels.type(torch.float32)
         weights = torch.where(labels == 0.0, labels + 1.0, 2.0 * labels)
         loss_per_location = nn.BCELoss(reduction="none")(scores, labels)

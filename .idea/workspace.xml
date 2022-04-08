@@ -2,10 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b5756efd-4717-439b-9de5-0e229bc3db80" name="Changes" comment="Changes">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/clip_preprocessing.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/extract_clip_features.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/model/VSLNet.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/model/VSLNet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/model/layers.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/model/layers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/prepare_video_swin_features.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/prepare_video_swin_features.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/run.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/run2.sh" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/run2.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/utils/data_gen.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/utils/data_gen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +74,11 @@
       <workItem from="1648863690702" duration="10239000" />
       <workItem from="1648876253932" duration="773000" />
       <workItem from="1648892692747" duration="73000" />
-      <workItem from="1649040956626" duration="8419000" />
+      <workItem from="1649040956626" duration="30083000" />
+      <workItem from="1649263522965" duration="20293000" />
+      <workItem from="1649346406306" duration="11525000" />
+      <workItem from="1649460349693" duration="50000" />
+      <workItem from="1649460416991" duration="463000" />
     </task>
     <servers />
   </component>
