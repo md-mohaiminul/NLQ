@@ -1,41 +1,35 @@
-import clip
+import numpy as np
 import torch
-import torch.nn as nn
+import json
+import random
+import cv2
+import sys
+import copy
 
-x = torch.tensor([[0.1, 1.1, -0.1, float("nan")], [0.1, 1.1, -0.1, float("nan")]])
-x = x.clamp(0,1)
-x[x != x] = 0
-print(x)
+split = 'train'
+data_json = f'/playpen-storage/mmiemon/ego4d/data/annotations/nlq_{split}_10s.json'
+with open(data_json, mode="r", encoding="utf-8") as f:
+    split_data = json.load(f)
 
-# device = 'cuda' if torch.cuda.is_available() else 'cpu'
-# model, preprocess = clip.load('ViT-L/14')
-#
-# #image = torch.rand([1, 3, 224, 224]).to(device)
-# text = clip.tokenize(["a diagram of a dog"]).to(device)
-#
-# with torch.no_grad():
-#     #image_features = model.encode_image(image)
-#     text_features = model.encode_text(text)
-#
-# #print(image_features.shape)
-# print(text_features.shape)
-# query_affine = nn.Linear(768, 128).cuda()
-#
-# x = model.token_embedding(text).type(model.dtype)  # [batch_size, n_ctx, d_model]
-# x = x + model.positional_embedding.type(model.dtype)
-# x = x.permute(1, 0, 2)  # NLD -> LND
-# x = model.transformer(x)
-# x = x.permute(1, 0, 2)  # LND -> NLD
-# x = model.ln_final(x).type(torch.float32)
-# x = query_affine(x)
-#
-# print(x.shape)
+all_len = []
+cnt = 0
+missing = 0
+for video_datum in split_data["videos"]:
+    for clip_datum in video_datum["clips"]:
+        clip_uid = clip_datum["clip_uid"]
+        clip_duration = clip_datum["video_end_sec"] - clip_datum["video_start_sec"]
+        for ann_datum in clip_datum["annotations"]:
+            annotations_uid = ann_datum["annotation_uid"]
+            for index, datum in enumerate(copy.deepcopy(ann_datum["language_queries"])):
+                duration = datum["clip_end_sec"] - datum["clip_start_sec"]
+                if duration > 10 or duration < 1.99:
+                    missing += 1
+                    ann_datum["language_queries"].remove(datum)
+                if datum["clip_start_sec"] < 0:
+                    print("error")
+                if datum["clip_end_sec"] > clip_duration:
+                    print(datum["clip_start_sec"], datum["clip_end_sec"], clip_duration)
+                quid = annotations_uid + '_' + str(index)
+                cnt += 1
 
-# x.shape = [batch_size, n_ctx, transformer.width]
-# take features from the eot embedding (eot_token is the highest number in each sequence)
-# x = x[torch.arange(x.shape[0]), text.argmax(dim=-1)] @ model.text_projection
-#
-# print(x.shape)
-
-# print(text_features-x)
-# print(torch.sum(text_features-x))
+print(cnt, missing, cnt-missing)

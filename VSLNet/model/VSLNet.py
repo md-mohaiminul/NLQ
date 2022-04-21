@@ -3,6 +3,7 @@
 import torch
 import torch.nn as nn
 from transformers import AdamW, get_linear_schedule_with_warmup
+import torch.nn.functional as F
 
 import clip
 
@@ -121,17 +122,21 @@ class VSLNet(nn.Module):
         self.apply(init_weights)
 
     def forward(self, word_ids, char_ids, video_features, v_mask, q_mask):
+        #video_features = F.normalize(video_features, dim=-1, eps=1e-5) #added later
         video_features = self.video_affine(video_features)
         if self.configs.predictor == "bert":
             query_features = self.embedding_net(word_ids)
             query_features = self.query_affine(query_features)
         elif self.configs.predictor == "clip":
+            #self.clip_model.float()
             x = self.clip_model.token_embedding(word_ids['input_ids']).type(self.clip_model.dtype)  # [batch_size, n_ctx, d_model]
-            x = x + self.clip_model.positional_embedding.type(self.clip_model.dtype)
+            x = x + self.clip_model.positional_embedding[0:x.shape[1]].type(self.clip_model.dtype)
             x = x.permute(1, 0, 2)  # NLD -> LND
             x = self.clip_model.transformer(x)
             x = x.permute(1, 0, 2)  # LND -> NLD
-            query_features = self.clip_model.ln_final(x).type(torch.float32)
+            query_features = self.clip_model.ln_final(x).type(self.clip_model.dtype)
+            query_features = query_features.float()
+            query_features = F.normalize(query_features, dim=-1, eps=1e-5)
             query_features = self.query_affine(query_features)
         else:
             query_features = self.embedding_net(word_ids, char_ids)

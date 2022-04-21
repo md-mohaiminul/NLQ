@@ -37,9 +37,14 @@ def main(configs, parser):
     configs.char_size = dataset.get("n_chars", -1)
     configs.word_size = dataset.get("n_words", -1)
 
+    print(configs)
+
     # get train and test loader
+    # visual_features = load_video_features(
+    #     os.path.join("data", "features", configs.task, configs.fv), configs.max_pos_len
+    # )
     visual_features = load_video_features(
-        os.path.join("data", "features", configs.task, configs.fv), configs.max_pos_len
+        os.path.join("data", "features", "nlq_official_v1", configs.fv), configs.max_pos_len
     )
     # If video agnostic, randomize the video features.
     if configs.video_agnostic:
@@ -60,6 +65,7 @@ def main(configs, parser):
     test_loader = get_test_loader(
         dataset=dataset["test_set"], video_features=visual_features, configs=configs
     )
+
     configs.num_train_steps = len(train_loader) * configs.epochs
     num_train_batches = len(train_loader)
     num_val_batches = 0 if val_loader is None else len(val_loader)
@@ -75,11 +81,11 @@ def main(configs, parser):
         "_".join(
             [
                 configs.model_name,
-                'dim',
-                str(configs.dim),
+                # 'dim',
+                # str(configs.dim),
                 configs.task,
                 configs.fv,
-                'max_pos_len',
+                # 'max_pos_len',
                 str(configs.max_pos_len),
                 configs.predictor,
             ]
@@ -221,12 +227,14 @@ def main(configs, parser):
         score_writer.close()
 
     elif configs.mode.lower() == "test":
+        print(model_dir)
         if not os.path.exists(model_dir):
             raise ValueError("No pre-trained weights exist")
         # load previous configs
         pre_configs = load_json(os.path.join(model_dir, "configs.json"))
         parser.set_defaults(**pre_configs)
         configs = parser.parse_args()
+        print(configs)
         # build model
         model = VSLNet(
             configs=configs, word_vectors=dataset.get("word_vector", None)
@@ -239,10 +247,11 @@ def main(configs, parser):
         result_save_path = filename.replace(".t7", "_test_result.json")
         results, mIoU, score_str = eval_test(
             model=model,
-            data_loader=test_loader,
+            data_loader=val_loader,
             device=device,
             mode="test",
             result_save_path=result_save_path,
+            gt_json_path=configs.eval_gt_json,
         )
         print(score_str, flush=True)
 

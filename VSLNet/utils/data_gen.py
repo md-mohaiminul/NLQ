@@ -233,6 +233,7 @@ def dataset_gen_bert(data, vfeat_lens, tokenizer, max_pos_len, scope, predictor,
             word_ids = tokenizer(record["query"])
             if predictor == 'clip':
                 word_ids['input_ids'] = clip.tokenize(record["query"])[0].tolist()
+                #word_ids['input_ids'] = [i for i in word_ids['input_ids'] if i>0]
             result = {
                 "sample_id": record["sample_id"],
                 "vid": record["vid"],
@@ -286,7 +287,8 @@ def gen_or_load_dataset(configs):
     if not os.path.exists(configs.save_dir):
         os.makedirs(configs.save_dir)
     data_dir = os.path.join("data", "dataset", configs.task)            #'data/dataset/nlq_official_v1'
-    feature_dir = os.path.join("data", "features", configs.task, configs.fv)     #'data/features/nlq_official_v1/official'
+    #feature_dir = os.path.join("data", "features", configs.task, configs.fv)     #'data/features/nlq_official_v1/official'
+    feature_dir = os.path.join("data", "features", "nlq_official_v1", configs.fv)
     if configs.suffix is None:
         save_path = os.path.join(   #'datasets/nlq_official_v1_official_512_bert.pkl'
             configs.save_dir,

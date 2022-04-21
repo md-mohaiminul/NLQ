@@ -7,7 +7,7 @@ from easydict import EasyDict as edict
 
 config = edict()
 
-config.WORKERS = 16
+config.WORKERS = 4
 config.LOG_DIR = ''
 config.MODEL_DIR = ''
 config.RESULT_DIR = ''

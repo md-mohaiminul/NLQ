@@ -9,6 +9,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import argparse
 import json
+import random
 
 import numpy as np
 import terminaltables
@@ -50,11 +51,16 @@ def compute_IoU(pred, gt):
     union_left = np.minimum(pred[:, 0, None], gt[None, :, 0])
     union_right = np.maximum(pred[:, 1, None], gt[None, :, 1])
     union = np.maximum(0.0, union_right - union_left)
+
     overlap = 1.0 * inter / union
     if not gt_is_list:
         overlap = overlap[:, 0]
     if not pred_is_list:
         overlap = overlap[0]
+
+    # if gt[0][0]==gt[0][1]:
+    #     print(overlap)
+
     return overlap
 
 
@@ -68,6 +74,7 @@ def evaluate_nlq_performance(
     for video_datum in ground_truth["videos"]:
         for clip_datum in video_datum["clips"]:
             clip_uid = clip_datum["clip_uid"]
+            clip_duration = clip_datum["video_end_sec"] - clip_datum["video_start_sec"]
             for ann_datum in clip_datum["annotations"]:
                 key = (clip_uid, ann_datum["annotation_uid"])
                 gt_dict[key] = ann_datum

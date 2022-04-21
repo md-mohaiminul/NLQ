@@ -36,7 +36,7 @@ def read_command_line():
     parser.add_argument(
         "--num_workers",
         type=int,
-        default=1,
+        default=64,
         help="Number of CPU workers to process the data",
     )
     # model parameters

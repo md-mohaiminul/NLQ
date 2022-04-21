@@ -77,6 +77,8 @@ def eval_test(
             desc="evaluate {}".format(mode),
         ):
             # prepare features
+            # vfeats -> BLD (example: 32, 128, 2304)
+            # vfeats_lens -> B
             vfeats, vfeat_lens = vfeats.to(device), vfeat_lens.to(device)
 
             if isinstance(word_ids, dict):
@@ -95,10 +97,12 @@ def eval_test(
             # generate mask
             video_mask = convert_length_to_mask(vfeat_lens).to(device)
             # compute predicted results
+            #start_logits, end_logits = BL
+            #start_ondices, end_indices = B5
             _, start_logits, end_logits = model(
                 word_ids, char_ids, vfeats, video_mask, query_mask
             )
-            start_indices, end_indices = model.extract_index(start_logits, end_logits)
+            start_indices, end_indices = model.extract_index(start_logits, end_logits)     # [B, 5]
             start_indices = start_indices.cpu().numpy()
             end_indices = end_indices.cpu().numpy()
 
@@ -134,8 +138,8 @@ def eval_test(
     if gt_json_path:
         with open(gt_json_path) as file_id:
             ground_truth = json.load(file_id)
-        thresholds = [0.3, 0.5, 0.01]
-        topK = [1, 3, 5]
+        thresholds = [0.3, 0.5, 0.1]
+        topK = [1, 5, 10, 20, 50]
         results, mIoU = ego4d_eval.evaluate_nlq_performance(
             predictions, ground_truth, thresholds, topK
         )

@@ -14,9 +14,9 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from moment_detr.config import BaseOptions
-from moment_detr.start_end_dataset import \
+from moment_detr.start_end_dataset_ego4d import \
     StartEndDataset, start_end_collate, prepare_batch_inputs
-from moment_detr.inference import eval_epoch, start_inference, setup_model
+from moment_detr.inference_ego4d import eval_epoch, start_inference, setup_model
 from utils.basic_utils import AverageMeter, dict_to_markdown
 from utils.model_utils import count_parameters
 
@@ -143,15 +143,19 @@ def train(model, criterion, optimizer, lr_scheduler, train_dataset, val_dataset,
 
             with open(opt.eval_log_filepath, "a") as f:
                 f.write(to_write)
-            logger.info("metrics_no_nms {}".format(pprint.pformat(metrics_no_nms["brief"], indent=4)))
+            logger.info("metrics_no_nms {}".format(pprint.pformat(metrics_no_nms, indent=4)))
             if metrics_nms is not None:
                 logger.info("metrics_nms {}".format(pprint.pformat(metrics_nms["brief"], indent=4)))
 
             metrics = metrics_no_nms
-            for k, v in metrics["brief"].items():
+            # for k, v in metrics["brief"].items():
+            #     tb_writer.add_scalar(f"Eval/{k}", float(v), epoch_i+1)
+            for k, v in metrics.items():
                 tb_writer.add_scalar(f"Eval/{k}", float(v), epoch_i+1)
 
-            stop_score = metrics["brief"]["MR-full-mAP"]
+            #stop_score = metrics["brief"]["MR-full-mAP"]
+            #stop_score = metrics["brief"]["MR-full-R1@0.3"]
+            stop_score = metrics['IoU0.3-R@1']
             if stop_score > prev_best_score:
                 es_cnt = 0
                 prev_best_score = stop_score

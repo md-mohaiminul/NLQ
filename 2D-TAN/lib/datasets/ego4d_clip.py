@@ -26,7 +26,7 @@ class Ego4DClip(data.Dataset):
         self.vis_input_type = config.DATASET.VIS_INPUT_TYPE
         self.data_dir = config.DATA_DIR
         self.split = split
-        self.window = config.DATASET.WINDOW
+        self.window = 40
         self.min_duration = 3
         stride = int(self.window / 2)  # windos overlap by half
 
@@ -35,9 +35,9 @@ class Ego4DClip(data.Dataset):
 
         # load annotations
         if split == "train":
-            anno_path = os.path.join(self.data_dir, "nlq_train.json")
-        elif split == "test":  # use val set for test
-            anno_path = os.path.join(self.data_dir, "nlq_val.json")
+            anno_path = os.path.join(self.data_dir, "annotations/nlq_train.json")
+        elif split == "test" or split == "val":  # use val set for test
+            anno_path = os.path.join(self.data_dir, "annotations/nlq_val.json")
         with open(anno_path) as f:
             anno_json = json.load(f)
         ## - load csv from data/Ego4D_clip/benchmarck_lq_val_annotation.csv
@@ -84,7 +84,7 @@ class Ego4DClip(data.Dataset):
                 # - enumerate annotations
                 for anno in anno_clip["annotations"]:
                     for query in anno["language_queries"]:
-                        query_times = float(query["start_sec"]), float(query["end_sec"])
+                        query_times = float(query["clip_start_sec"]), float(query["clip_end_sec"])
                         query_duration = (
                             query_times[1] - query_times[0]
                         )  # in terms of seconds
@@ -159,7 +159,8 @@ class Ego4DClip(data.Dataset):
         self.annotations = anno_pairs
         self.cache_bert_feature = dict()
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-        self.bert_model = BertModel.from_pretrained("bert-base-uncased").cuda()
+        #self.bert_model = BertModel.from_pretrained("bert-base-uncased").cuda()
+        self.bert_model = BertModel.from_pretrained("bert-base-uncased")
 
     def __getitem__(self, index):
         video_id = self.annotations[index]["video"]
@@ -225,7 +226,7 @@ class Ego4DClip(data.Dataset):
     def cache_text_feature(self, sentence):
         sentence = sentence.lower().strip("? \n.") + "?"
         inputs = self.tokenizer(sentence, return_tensors="pt")
-        inputs = {key: val.cuda() for key, val in inputs.items()}
+        #inputs = {key: val.cuda() for key, val in inputs.items()}
         with torch.no_grad():
             outputs = self.bert_model(**inputs)
         output = outputs[0].data.detach()
@@ -235,10 +236,11 @@ class Ego4DClip(data.Dataset):
     def get_video_features(self, vid, duration, window_se=None):
         if "slowfast" == config.DATASET.VIS_INPUT_TYPE:
             # fps = 1
-            feature = np.load(self.data_dir + "/sf/{}.npy".format(vid))
+            #feature = np.load(self.data_dir + "/slowfast8x8_r101_k400/{}.npy".format(vid))
+            features = torch.load("/playpen-storage/mmiemon/ego4d/NLQ/VSLNet/data/features/nlq_official_v1/official/{}.pt".format(vid)).float()
 
             # features = np.load(self.data_dir + '/2d/{}.npy'.format(vid))
-            features = torch.tensor(feature).float()
+            #features = torch.tensor(feature).float()
             # duration = features.shape[0]*fps
             fps = 1.0 * features.shape[0] / duration
 

@@ -415,6 +415,7 @@ def build_model(args):
         span_loss_type=args.span_loss_type,
         use_txt_pos=args.use_txt_pos,
         n_input_proj=args.n_input_proj,
+        max_v_l = args.max_v_l,
     )
 
     matcher = build_matcher(args)

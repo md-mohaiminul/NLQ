@@ -75,6 +75,7 @@ def visual_feature_sampling(visual_feature, max_num_clips):
         s_idx, e_idx = idxs[i], idxs[i + 1]
         if s_idx < e_idx:
             new_visual_feature.append(np.mean(visual_feature[s_idx:e_idx], axis=0))
+            #new_visual_feature.append(visual_feature[s_idx]) #added later
         else:
             new_visual_feature.append(visual_feature[s_idx])
     new_visual_feature = np.asarray(new_visual_feature)

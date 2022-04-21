@@ -451,8 +451,8 @@ class HighLightLayer(nn.Module):
     @staticmethod
     def compute_loss(scores, labels, mask, epsilon=1e-12):
         #added later
-        scores = scores.clamp(0, 1)
-        scores[scores != scores] = 1
+        # scores = scores.clamp(0, 1)
+        # scores[scores != scores] = 1
 
         labels = labels.type(torch.float32)
         weights = torch.where(labels == 0.0, labels + 1.0, 2.0 * labels)
@@ -460,6 +460,7 @@ class HighLightLayer(nn.Module):
         loss_per_location = loss_per_location * weights
         mask = mask.type(torch.float32)
         loss = torch.sum(loss_per_location * mask) / (torch.sum(mask) + epsilon)
+        # loss = min(loss, 1.0)
         return loss
 
 
@@ -562,7 +563,7 @@ class ConditionedPredictor(nn.Module):
         # Get top 5 start and end indices.
         batch_size, height, width = outer.shape
         outer_flat = outer.view(batch_size, -1)
-        _, flat_indices = outer_flat.topk(5, dim=-1)
+        _, flat_indices = outer_flat.topk(50, dim=-1)
         start_indices = flat_indices // width
         end_indices = flat_indices % width
         return start_indices, end_indices

@@ -13,7 +13,7 @@ from torch.utils.data import DataLoader
 from moment_detr.config import TestOptions
 from moment_detr.model import build_model
 from moment_detr.span_utils import span_cxw_to_xx
-from moment_detr.start_end_dataset import StartEndDataset, start_end_collate, prepare_batch_inputs
+from moment_detr.start_end_dataset_ego4d import StartEndDataset, start_end_collate, prepare_batch_inputs
 from moment_detr.postprocessing_moment_detr import PostProcessorDETR
 from standalone_eval.eval import eval_submission
 from utils.basic_utils import save_jsonl, save_json
@@ -48,7 +48,7 @@ def eval_epoch_post_processing(submission, opt, gt_data, save_submission_filenam
     if opt.eval_split_name in ["val", "test"]:  # since test_public has no GT
         metrics = eval_submission(
             submission, gt_data,
-            verbose=opt.debug, match_number=not opt.debug
+            verbose=opt.debug, match_number=not opt.debug, max_iou = opt.max_iou    #changed later
         )
         save_metrics_path = submission_path.replace(".jsonl", "_metrics.json")
         save_json(metrics, save_metrics_path, save_pretty=True, sort_keys=False)
@@ -101,6 +101,7 @@ def compute_mr_results(model, eval_loader, opt, epoch_i=None, criterion=None, tb
         prob = F.softmax(outputs["pred_logits"], -1)  # (batch_size, #queries, #classes=2)
         if opt.span_loss_type == "l1":
             scores = prob[..., 0]  # * (batch_size, #queries)  foreground label is 0, we directly take it
+
             pred_spans = outputs["pred_spans"]  # (bsz, #queries, 2)
             _saliency_scores = outputs["saliency_scores"].half()  # (bsz, L)
             saliency_scores = []
@@ -149,9 +150,15 @@ def compute_mr_results(model, eval_loader, opt, epoch_i=None, criterion=None, tb
         for k, v in loss_meters.items():
             tb_writer.add_scalar("Eval/{}".format(k), v.avg, epoch_i + 1)
 
+    # post_processor = PostProcessorDETR(
+    #     clip_length=2, min_ts_val=0, max_ts_val=150,
+    #     min_w_l=2, max_w_l=150, move_window_method="left",
+    #     process_func_names=("clip_ts", "round_multiple")
+    # )
+
     post_processor = PostProcessorDETR(
-        clip_length=2, min_ts_val=0, max_ts_val=150,
-        min_w_l=2, max_w_l=150, move_window_method="left",
+        clip_length=2, min_ts_val=0, max_ts_val=500,
+        min_w_l=2, max_w_l=500, move_window_method="left",
         process_func_names=("clip_ts", "round_multiple")
     )
     mr_res = post_processor(mr_res)
