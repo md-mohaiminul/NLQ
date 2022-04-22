@@ -2,11 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b5756efd-4717-439b-9de5-0e229bc3db80" name="Changes" comment="Changes">
-      <change afterPath="$PROJECT_DIR$/CLIP4Clip/cut_clips.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CLIP4Clip/test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CLIP4Clip/dataloaders/data_loader_ego4d_retrieval.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CLIP4Clip/run.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLIP4Clip/dataloaders/data_dataloaders.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/dataloaders/data_dataloaders.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CLIP4Clip/dataloaders/rawvideo_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/dataloaders/rawvideo_util.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CLIP4Clip/preprocess/compress_video.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/preprocess/compress_video.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLIP4Clip/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -132,9 +133,9 @@
     </watches-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/NLQ$inference_debug.coverage" NAME="inference_debug Coverage Results" MODIFIED="1650083261915" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/moment_detr" />
+    <SUITE FILE_PATH="coverage/NLQ$main.coverage" NAME="main Coverage Results" MODIFIED="1650144416392" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/VSLNet" />
+    <SUITE FILE_PATH="coverage/NLQ$inference_debug.coverage" NAME="inference_debug Coverage Results" MODIFIED="1650223498656" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/moment_detr" />
     <SUITE FILE_PATH="coverage/NLQ$inference_ego4d_debug.coverage" NAME="main Coverage Results" MODIFIED="1650263264696" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/VSLNet" />
-    <SUITE FILE_PATH="coverage/NLQ$main.coverage" NAME="main Coverage Results" MODIFIED="1648656714544" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/VSLNet" />
     <SUITE FILE_PATH="coverage/NLQ$train.coverage" NAME="train Coverage Results" MODIFIED="1649719121385" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/moment_detr" />
   </component>
 </project>

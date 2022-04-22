@@ -47,8 +47,6 @@ class RawVideoExtractorCV2():
             sample_fp = fps
         if interval == 0: interval = 1
 
-        print(frameCount, fps, sample_fp, interval)
-
         inds = [ind for ind in np.arange(0, fps, interval)]
         assert len(inds) >= sample_fp
         inds = inds[:sample_fp]
