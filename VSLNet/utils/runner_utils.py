@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 import utils.evaluate_ego4d_nlq as ego4d_eval
 from utils.data_util import index_to_time
-
+from utils.nms import nms, softnms_v2
 
 def set_th_config(seed):
     random.seed(seed)
@@ -68,6 +68,7 @@ def eval_test(
     gt_json_path=None,
     epoch=None,
     global_step=None,
+    nms_th = None,
 ):
     predictions = []
     with torch.no_grad():
@@ -102,12 +103,14 @@ def eval_test(
             _, start_logits, end_logits = model(
                 word_ids, char_ids, vfeats, video_mask, query_mask
             )
-            start_indices, end_indices = model.extract_index(start_logits, end_logits)     # [B, 5]
+            start_indices, end_indices, batch_scores = model.extract_index(start_logits, end_logits)     # [B, 5]
+
             start_indices = start_indices.cpu().numpy()
             end_indices = end_indices.cpu().numpy()
+            batch_scores = batch_scores.cpu().numpy()
 
             # Record output and use standard evalution script for NLQ.
-            for record, starts, ends in zip(records, start_indices, end_indices):
+            for record, starts, ends, scores in zip(records, start_indices, end_indices, batch_scores):
                 # Convert all indices to times.
                 timewindow_predictions = []
                 for start, end in zip(starts, ends):
@@ -115,15 +118,24 @@ def eval_test(
                         start, end, record["v_len"], record["duration"]
                     )
                     timewindow_predictions.append([float(start_time), float(end_time)])
+
+                if nms_th:
+                    timewindow_predictions, count = nms(torch.tensor(timewindow_predictions), torch.tensor(scores),
+                                                        overlap=nms_th)
+                    timewindow_predictions = timewindow_predictions.tolist()
+
                 new_datum = {
                     "clip_uid": record["vid"],
                     "annotation_uid": record["annotation_uid"],
                     "query_idx": int(record["query_idx"]),
                     "predicted_times": copy.deepcopy(timewindow_predictions),
+                    #"scores": copy.deepcopy(scores)
                 }
                 predictions.append(new_datum)
 
     # Save predictions if path is provided.
+    print(result_save_path) #vslnet_29455_test_result.json
+    print(gt_json_path)
     if result_save_path:
         with open(result_save_path, "w") as file_id:
             json.dump(

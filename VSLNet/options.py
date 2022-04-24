@@ -122,5 +122,11 @@ def read_command_line():
         default=None,
         help="set to the last `_xxx` in ckpt repo to eval results",
     )
+
+    #added later
+    parser.add_argument(
+        "--nms_th", type=float, default=0.5, help="nms_th used during test"
+    )
+
     configs = parser.parse_args()
     return configs, parser

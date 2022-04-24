@@ -95,6 +95,8 @@ def main(configs, parser):
         home_dir = home_dir + "_" + configs.suffix
     model_dir = os.path.join(home_dir, "model")
 
+    print('model dir', model_dir)
+
     # train and test
     if configs.mode.lower() == "train":
         if not os.path.exists(model_dir):
@@ -227,7 +229,6 @@ def main(configs, parser):
         score_writer.close()
 
     elif configs.mode.lower() == "test":
-        print(model_dir)
         if not os.path.exists(model_dir):
             raise ValueError("No pre-trained weights exist")
         # load previous configs
@@ -252,6 +253,7 @@ def main(configs, parser):
             mode="test",
             result_save_path=result_save_path,
             gt_json_path=configs.eval_gt_json,
+            nms_th = configs.nms_th,
         )
         print(score_str, flush=True)
 

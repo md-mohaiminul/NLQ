@@ -13,6 +13,8 @@ import random
 
 import numpy as np
 import terminaltables
+import torch
+from utils.nms import nms, softnms_v2
 
 
 def display_results(results, mIoU, thresholds, topK, title=None):
@@ -83,6 +85,8 @@ def evaluate_nlq_performance(
     results = [[[] for _ in topK] for _ in thresholds]
     average_IoU = []
     num_instances = 0
+
+    counts = []
     for pred_datum in predictions:
         key = (pred_datum["clip_uid"], pred_datum["annotation_uid"])
         assert key in gt_dict, "Instance not present!"
@@ -90,16 +94,28 @@ def evaluate_nlq_performance(
         gt_datum = gt_dict[key]
         gt_query_datum = gt_datum["language_queries"][query_id]
 
-        # Compute overlap and recalls.
+        # nms_predictions, count = nms(torch.tensor(pred_datum["predicted_times"]), torch.tensor(pred_datum["scores"]))
+        #
+        # counts.append(count)
+
+        #Compute overlap and recalls.
         overlap = compute_IoU(
             pred_datum["predicted_times"],
             [[gt_query_datum["clip_start_sec"], gt_query_datum["clip_end_sec"]]],
         )
+
+        # overlap = compute_IoU(
+        #     nms_predictions.tolist(),
+        #     [[gt_query_datum["clip_start_sec"], gt_query_datum["clip_end_sec"]]],
+        # )
+
         average_IoU.append(np.mean(np.sort(overlap[0])[-3:]))
         for tt, threshold in enumerate(thresholds):
             for rr, KK in enumerate(topK):
                 results[tt][rr].append((overlap > threshold)[:KK].any())
         num_instances += 1
+
+    #print(min(counts), max(counts), sum(counts)/len(counts))
 
     mean_results = np.array(results).mean(axis=-1)
     mIoU = np.mean(average_IoU)

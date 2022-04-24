@@ -563,10 +563,15 @@ class ConditionedPredictor(nn.Module):
         # Get top 5 start and end indices.
         batch_size, height, width = outer.shape
         outer_flat = outer.view(batch_size, -1)
-        _, flat_indices = outer_flat.topk(50, dim=-1)
+        _, flat_indices = outer_flat.topk(1000, dim=-1)
         start_indices = flat_indices // width
         end_indices = flat_indices % width
-        return start_indices, end_indices
+        #scores = outer[torch.arange(batch_size), flat_indices]
+        scores = torch.zeros([batch_size, 1000])
+        for i in range(batch_size):
+            #print(max(flat_indices[i]), min(flat_indices[i]))
+            scores[i] = outer_flat[i][flat_indices[i]]
+        return start_indices, end_indices, scores
 
     @staticmethod
     def compute_cross_entropy_loss(start_logits, end_logits, start_labels, end_labels):
