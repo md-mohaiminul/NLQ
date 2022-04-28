@@ -27,7 +27,7 @@ def compress(paras):
                    '-filter:v',
                    'scale=\'if(gt(a,1),trunc(oh*a/2)*2,224)\':\'if(gt(a,1),224,trunc(ow*a/2)*2)\'',  # scale to 224
                    '-map', '0:v',
-                   '-r', '3',  # frames per second
+                   '-r', '10',  # frames per second
                    output_video_path,
                    ]
         ffmpeg = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -36,36 +36,36 @@ def compress(paras):
         # print something above for debug
     except Exception as e:
         raise e
-#
-# def prepare_input_output_pairs(input_root, output_root):
-#     input_video_path_list = []
-#     output_video_path_list = []
-#     for root, dirs, files in os.walk(input_root):
-#         for file_name in files:
-#             input_video_path = os.path.join(root, file_name)
-#             output_video_path = os.path.join(output_root, file_name)
-#             if os.path.exists(output_video_path) and os.path.getsize(output_video_path) > 0:
-#                 pass
-#             else:
-#                 input_video_path_list.append(input_video_path)
-#                 output_video_path_list.append(output_video_path)
-#     return input_video_path_list, output_video_path_list
-
 
 def prepare_input_output_pairs(input_root, output_root):
     input_video_path_list = []
     output_video_path_list = []
-
-    for split in ['train', 'val']:
-        data_json = f'/playpen-storage/mmiemon/ego4d/data/annotations/nlq_{split}.json'
-        with open(data_json, mode="r", encoding="utf-8") as f:
-            data = json.load(f)['videos']
-
-        for video_datum in data:
-            input_video_path_list.append(f'{input_root}/{video_datum["video_uid"]}.mp4')
-            output_video_path_list.append(f'{output_root}/{video_datum["video_uid"]}.mp4')
-
+    for root, dirs, files in os.walk(input_root):
+        for file_name in files:
+            input_video_path = os.path.join(root, file_name)
+            output_video_path = os.path.join(output_root, file_name)
+            if os.path.exists(output_video_path) and os.path.getsize(output_video_path) > 0:
+                pass
+            else:
+                input_video_path_list.append(input_video_path)
+                output_video_path_list.append(output_video_path)
     return input_video_path_list, output_video_path_list
+
+
+# def prepare_input_output_pairs(input_root, output_root):
+#     input_video_path_list = []
+#     output_video_path_list = []
+#
+#     for split in ['train', 'val']:
+#         data_json = f'/playpen-storage/mmiemon/ego4d/data/annotations/nlq_{split}.json'
+#         with open(data_json, mode="r", encoding="utf-8") as f:
+#             data = json.load(f)['videos']
+#
+#         for video_datum in data:
+#             input_video_path_list.append(f'{input_root}/{video_datum["video_uid"]}.mp4')
+#             output_video_path_list.append(f'{output_root}/{video_datum["video_uid"]}.mp4')
+#
+#     return input_video_path_list, output_video_path_list
 
 
 if __name__ == "__main__":
@@ -73,11 +73,11 @@ if __name__ == "__main__":
     # parser.add_argument('--input_root', type=str, help='input root')
     # parser.add_argument('--output_root', type=str, help='output root')
     # args = parser.parse_args()
-
+    #
     # input_root = args.input_root
     # output_root = args.output_root
-    input_root = '/playpen-storage/mmiemon/ego4d/data/v1/full_scale'
-    output_root = '/playpen-storage/mmiemon/ego4d/data/v1/full_scale_fps_3_224'
+    input_root = '/playpen-storage/mmiemon/ego4d/data/v1/ego4d_clips'
+    output_root = '/playpen-storage/mmiemon/ego4d/data/v1/ego4d_clips_fps_10_224'
     assert input_root != output_root
 
     if not os.path.exists(output_root):

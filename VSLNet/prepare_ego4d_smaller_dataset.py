@@ -72,3 +72,4 @@ print(cnt)
 save_path = f'/playpen-storage/mmiemon/ego4d/data/annotations/nlq_{split}_10s.json'
 with open(save_path, "w") as file_id:
     json.dump(split_data, file_id)
+

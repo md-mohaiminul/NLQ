@@ -16,7 +16,7 @@ def process_question(question):
     return question.strip(" ").strip("?").lower() + "?"
 
 class Ego4d_DataLoader(Dataset):
-    """MSVD dataset loader."""
+    """Ego4d dataset loader."""
     def __init__(
             self,
             subset,

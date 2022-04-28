@@ -9,6 +9,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import argparse
 import json
+import math
 import random
 
 import numpy as np
@@ -87,6 +88,8 @@ def evaluate_nlq_performance(
     num_instances = 0
 
     counts = []
+    gt_durations = []
+    pred_durations = []
     for pred_datum in predictions:
         key = (pred_datum["clip_uid"], pred_datum["annotation_uid"])
         assert key in gt_dict, "Instance not present!"
@@ -113,9 +116,16 @@ def evaluate_nlq_performance(
         for tt, threshold in enumerate(thresholds):
             for rr, KK in enumerate(topK):
                 results[tt][rr].append((overlap > threshold)[:KK].any())
+                # if (overlap[0] > 0.1) and (overlap[0] < 0.3):
+                #     print(gt_query_datum["clip_start_sec"], gt_query_datum["clip_end_sec"],
+                #           pred_datum["predicted_times"][0])
+                #     gt_durations.append(gt_query_datum["clip_end_sec"]-gt_query_datum["clip_start_sec"])
+                #     pred_durations.append(pred_datum["predicted_times"][0][1]-pred_datum["predicted_times"][0][0])
         num_instances += 1
 
     #print(min(counts), max(counts), sum(counts)/len(counts))
+    # print('gt', sum(gt_durations) / len(gt_durations))
+    # print('pred', sum(pred_durations) / len(pred_durations))
 
     mean_results = np.array(results).mean(axis=-1)
     mIoU = np.mean(average_IoU)
