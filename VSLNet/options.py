@@ -125,7 +125,7 @@ def read_command_line():
 
     #added later
     parser.add_argument(
-        "--nms_th", type=float, default=0.5, help="nms_th used during test"
+        "--nms_th", type=float, default=None, help="nms_th used during test"
     )
 
     configs = parser.parse_args()

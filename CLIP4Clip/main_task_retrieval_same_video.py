@@ -7,23 +7,19 @@ import torch
 import numpy as np
 import random
 import os
+from tqdm import tqdm
 from metrics import compute_metrics, tensor_text_to_video_metrics, tensor_video_to_text_sim
 import time
 import argparse
-import json
-import math
-from torch.utils.data import DataLoader, Dataset
-
 from modules.tokenization_clip import SimpleTokenizer as ClipTokenizer
 from modules.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
-from modules.modeling import CLIP4Clip
+from modules.modeling_same_video import CLIP4Clip
 from modules.optimization import BertAdam
-from dataloaders.rawvideo_util import RawVideoExtractor
 
 from util import parallel_apply, get_logger
 from dataloaders.data_dataloaders import DATALOADER_DICT
 
-# torch.distributed.init_process_group(backend="nccl")
+torch.distributed.init_process_group(backend="nccl")
 
 global logger
 
@@ -32,37 +28,34 @@ def get_args(description='CLIP4Clip on Retrieval Task'):
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("--do_pretrain", action='store_true', help="Whether to run training.")
     parser.add_argument("--do_train", action='store_true', help="Whether to run training.")
-    parser.add_argument("--do_eval", default=True, help="Whether to run eval on the dev set.")
+    parser.add_argument("--do_eval", action='store_true', help="Whether to run eval on the dev set.")
 
     parser.add_argument('--train_csv', type=str, default='data/.train.csv', help='')
     parser.add_argument('--val_csv', type=str, default='data/.val.csv', help='')
-    parser.add_argument('--data_path', type=str, default='/playpen-storage/mmiemon/ego4d/data/annotations/', help='data pickle file path')
-    parser.add_argument('--features_path', type=str, default='/playpen-storage/mmiemon/ego4d/data/v1/clips_fps_3_224', help='feature path')
+    parser.add_argument('--data_path', type=str, default='data/caption.pickle', help='data pickle file path')
+    parser.add_argument('--features_path', type=str, default='data/videos_feature.pickle', help='feature path')
 
-    parser.add_argument('--num_thread_reader', type=int, default=16, help='')
+    parser.add_argument('--num_thread_reader', type=int, default=1, help='')
     parser.add_argument('--lr', type=float, default=0.0001, help='initial learning rate')
-    parser.add_argument('--epochs', type=int, default=5, help='upper epoch limit')
+    parser.add_argument('--epochs', type=int, default=20, help='upper epoch limit')
     parser.add_argument('--batch_size', type=int, default=256, help='batch size')
-    parser.add_argument('--batch_size_val', type=int, default=16, help='batch size eval')
+    parser.add_argument('--batch_size_val', type=int, default=3500, help='batch size eval')
     parser.add_argument('--lr_decay', type=float, default=0.9, help='Learning rate exp epoch decay')
-    parser.add_argument('--n_display', type=int, default=50, help='Information display frequence')
+    parser.add_argument('--n_display', type=int, default=100, help='Information display frequence')
     parser.add_argument('--video_dim', type=int, default=1024, help='video feature dimension')
-    parser.add_argument('--image_resolution', type=int, default=224, help='Image resolution')
     parser.add_argument('--seed', type=int, default=42, help='random seed')
-    parser.add_argument('--max_words', type=int, default=32, help='')
-    parser.add_argument('--max_frames', type=int, default=12, help='')
-    parser.add_argument('--feature_framerate', type=int, default=10, help='')
+    parser.add_argument('--max_words', type=int, default=20, help='')
+    parser.add_argument('--max_frames', type=int, default=100, help='')
+    parser.add_argument('--feature_framerate', type=int, default=1, help='')
     parser.add_argument('--margin', type=float, default=0.1, help='margin for loss')
     parser.add_argument('--hard_negative_rate', type=float, default=0.5, help='rate of intra negative sample')
     parser.add_argument('--negative_weighting', type=int, default=1, help='Weight the loss for intra negative')
     parser.add_argument('--n_pair', type=int, default=1, help='Num of pair to output from data loader')
 
-    parser.add_argument('--start_pred_index', type=int, help='')
-
-    parser.add_argument("--output_dir", default='ckpts/ViT_B_16', type=str,
+    parser.add_argument("--output_dir", default=None, type=str, required=True,
                         help="The output directory where the model predictions and checkpoints will be written.")
     parser.add_argument("--cross_model", default="cross-base", type=str, required=False, help="Cross module")
-    parser.add_argument("--init_model", default='ckpts/ViT_B_16_fps_10/pytorch_model.bin.2', type=str, required=False, help="Initial model.")
+    parser.add_argument("--init_model", default=None, type=str, required=False, help="Initial model.")
     parser.add_argument("--resume_model", default=None, type=str, required=False, help="Resume train model.")
     parser.add_argument("--do_lower_case", action='store_true', help="Set this flag if you are using an uncased model.")
     parser.add_argument("--warmup_proportion", default=0.1, type=float,
@@ -81,12 +74,12 @@ def get_args(description='CLIP4Clip on Retrieval Task'):
                              "See details at https://nvidia.github.io/apex/amp.html")
 
     parser.add_argument("--task_type", default="retrieval", type=str, help="Point the task `retrieval` to finetune.")
-    parser.add_argument("--datatype", default="ego4d", type=str, help="Point the dataset to finetune.")
+    parser.add_argument("--datatype", default="msrvtt", type=str, help="Point the dataset to finetune.")
 
     parser.add_argument("--world_size", default=0, type=int, help="distribted training")
     parser.add_argument("--local_rank", default=0, type=int, help="distribted training")
     parser.add_argument("--rank", default=0, type=int, help="distribted training")
-    parser.add_argument('--coef_lr', type=float, default=1e-3, help='coefficient for bert branch.')
+    parser.add_argument('--coef_lr', type=float, default=1., help='coefficient for bert branch.')
     parser.add_argument('--use_mil', action='store_true', help="Whether use MIL as Miech et. al. (2020).")
     parser.add_argument('--sampled_use_mil', action='store_true', help="Whether MIL, has a high priority than use_mil.")
 
@@ -94,7 +87,7 @@ def get_args(description='CLIP4Clip on Retrieval Task'):
     parser.add_argument('--visual_num_hidden_layers', type=int, default=12, help="Layer NO. of visual.")
     parser.add_argument('--cross_num_hidden_layers', type=int, default=4, help="Layer NO. of cross.")
 
-    parser.add_argument('--loose_type', default=True, help="Default using tight type for retrieval.")
+    parser.add_argument('--loose_type', action='store_true', help="Default using tight type for retrieval.")
     parser.add_argument('--expand_msrvtt_sentences', action='store_true', help="")
 
     parser.add_argument('--train_frame_order', type=int, default=0, choices=[0, 1, 2],
@@ -103,7 +96,7 @@ def get_args(description='CLIP4Clip on Retrieval Task'):
                         help="Frame order, 0: ordinary order; 1: reverse order; 2: random order.")
 
     parser.add_argument('--freeze_layer_num', type=int, default=0, help="Layer NO. of CLIP need to freeze.")
-    parser.add_argument('--slice_framepos', type=int, default=2, choices=[0, 1, 2],
+    parser.add_argument('--slice_framepos', type=int, default=0, choices=[0, 1, 2],
                         help="0: cut from head frames; 1: cut from tail frames; 2: extract frames uniformly.")
     parser.add_argument('--linear_patch', type=str, default="2d", choices=["2d", "3d"],
                         help="linear projection of flattened patches.")
@@ -111,7 +104,7 @@ def get_args(description='CLIP4Clip on Retrieval Task'):
                         choices=["meanP", "seqLSTM", "seqTransf", "tightTransf"],
                         help="choice a similarity header.")
 
-    parser.add_argument("--pretrained_clip_name", default="ViT-B/16", type=str, help="Choose a CLIP version")
+    parser.add_argument("--pretrained_clip_name", default="ViT-B/32", type=str, help="Choose a CLIP version")
 
     args = parser.parse_args()
 
@@ -142,11 +135,10 @@ def set_seed_logger(args):
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
 
-    #world_size = torch.distributed.get_world_size()
+    world_size = torch.distributed.get_world_size()
     torch.cuda.set_device(args.local_rank)
-    #args.world_size = world_size
-    #rank = torch.distributed.get_rank()
-    rank = 0
+    args.world_size = world_size
+    rank = torch.distributed.get_rank()
     args.rank = rank
 
     if not os.path.exists(args.output_dir):
@@ -225,9 +217,8 @@ def prep_optimizer(args, model, num_train_optimization_steps, device, n_gpu, loc
                          t_total=num_train_optimization_steps, weight_decay=weight_decay,
                          max_grad_norm=1.0)
 
-    model.cuda()
-    # model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[local_rank],
-    #                                                   output_device=local_rank, find_unused_parameters=True)
+    model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[local_rank],
+                                                      output_device=local_rank, find_unused_parameters=True)
 
     return optimizer, scheduler, model
 
@@ -277,13 +268,18 @@ def train_epoch(epoch, args, model, train_dataloader, device, n_gpu, optimizer, 
     start_time = time.time()
     total_loss = 0
 
-    for step, batch in enumerate(train_dataloader):
+    for step, batch in enumerate(tqdm(train_dataloader)):
         if n_gpu == 1:
             # multi-gpu does scattering it-self
             batch = tuple(t.to(device=device, non_blocking=True) for t in batch)
 
-        input_ids, input_mask, segment_ids, video, video_mask = batch
-        loss = model(input_ids, segment_ids, input_mask, video, video_mask)
+        input_ids, input_mask, segment_ids, video, video_mask, negative_videos, negative_video_masks = batch
+        # print(input_ids.shape, input_mask.shape, segment_ids.shape, video.shape, video_mask.shape,
+        #       negative_videos.shape, negative_video_masks.shape)
+
+        loss = model(input_ids, segment_ids, input_mask, video, video_mask, negative_videos, negative_video_masks)
+
+        # loss = model(input_ids, segment_ids, input_mask, video, video_mask)
 
         if n_gpu > 1:
             loss = loss.mean()  # mean() to average on multi-gpu.
@@ -332,8 +328,7 @@ def _run_on_single_gpu(model, batch_list_t, batch_list_v, batch_sequence_output_
         for idx2, b2 in enumerate(batch_list_v):
             video_mask, *_tmp = b2
             visual_output = batch_visual_output_list[idx2]
-            b1b2_logits, *_tmp = model.get_similarity_logits(sequence_output.cuda(), visual_output.cuda(),
-                                                             input_mask.cuda(), video_mask.cuda(),
+            b1b2_logits, *_tmp = model.get_similarity_logits(sequence_output, visual_output, input_mask, video_mask,
                                                              loose_type=model.loose_type)
             b1b2_logits = b1b2_logits.cpu().detach().numpy()
             each_row.append(b1b2_logits)
@@ -400,23 +395,8 @@ def eval_epoch(args, model, test_dataloader, device, n_gpu):
                     batch_list_v.append((video_mask,))
                 total_video_num += b
             else:
-                #sequence_output, visual_output = model.get_sequence_visual_output(input_ids, segment_ids, input_mask,
-                #                                                                  video, video_mask)
-                print('before', input_ids.shape, segment_ids.shape, input_mask.shape, video.shape, video_mask.shape)
-                #before torch.Size([16, 1, 32]) torch.Size([16, 1, 32]) torch.Size([16, 1, 32]) torch.Size([16, 1, 12, 1, 3, 224, 224]) torch.Size([16, 1, 12])
-                input_ids = input_ids.view(-1, input_ids.shape[-1])
-                segment_ids = segment_ids.view(-1, segment_ids.shape[-1])
-                input_mask = input_mask.view(-1, input_mask.shape[-1])
-                video_mask = video_mask.view(-1, video_mask.shape[-1])
-                print('after', input_ids.shape, segment_ids.shape, input_mask.shape, video.shape, video_mask.shape)
-                #after torch.Size([16, 32]) torch.Size([16, 32]) torch.Size([16, 32]) torch.Size([16, 1, 12, 1, 3, 224, 224]) torch.Size([16, 12])
-
-                video = torch.as_tensor(video).float()
-                b, pair, bs, ts, channel, h, w = video.shape
-                video = video.view(b * pair * bs * ts, channel, h, w)
-                video_frame = bs * ts
-                sequence_output = model.get_sequence_output(input_ids, segment_ids, input_mask, shaped=True)
-                visual_output = model.get_visual_output(video, video_mask, shaped=True, video_frame=video_frame)
+                sequence_output, visual_output = model.get_sequence_visual_output(input_ids, segment_ids, input_mask,
+                                                                                  video, video_mask)
 
                 batch_sequence_output_list.append(sequence_output)
                 batch_list_t.append((input_mask, segment_ids,))
@@ -503,200 +483,6 @@ def eval_epoch(args, model, test_dataloader, device, n_gpu):
     return R1
 
 
-SPECIAL_TOKEN = {"CLS_TOKEN": "<|startoftext|>", "SEP_TOKEN": "<|endoftext|>",
-                              "MASK_TOKEN": "[MASK]", "UNK_TOKEN": "[UNK]", "PAD_TOKEN": "[PAD]"}
-def _get_text(args, tokenizer, video_id, caption):
-    k = 1
-    choice_video_ids = [video_id]
-    pairs_text = np.zeros((k, args.max_words), dtype=np.long)
-    pairs_mask = np.zeros((k, args.max_words), dtype=np.long)
-    pairs_segment = np.zeros((k, args.max_words), dtype=np.long)
-
-    for i, video_id in enumerate(choice_video_ids):
-        words = tokenizer.tokenize(caption)
-
-        words = [SPECIAL_TOKEN["CLS_TOKEN"]] + words
-        total_length_with_CLS = args.max_words - 1
-        if len(words) > total_length_with_CLS:
-            words = words[:total_length_with_CLS]
-        words = words + [SPECIAL_TOKEN["SEP_TOKEN"]]
-
-        input_ids = tokenizer.convert_tokens_to_ids(words)
-        input_mask = [1] * len(input_ids)
-        segment_ids = [0] * len(input_ids)
-        while len(input_ids) < args.max_words:
-            input_ids.append(0)
-            input_mask.append(0)
-            segment_ids.append(0)
-        assert len(input_ids) == args.max_words
-        assert len(input_mask) == args.max_words
-        assert len(segment_ids) == args.max_words
-
-        pairs_text[i] = np.array(input_ids)
-        pairs_mask[i] = np.array(input_mask)
-        pairs_segment[i] = np.array(segment_ids)
-
-    return pairs_text, pairs_mask, pairs_segment, choice_video_ids
-
-def _get_rawvideo(args, rawVideoExtractor, choice_video_ids, start_time, end_time):
-
-    video_mask = np.zeros((len(choice_video_ids), args.max_frames), dtype=np.long)
-    max_video_length = [0] * len(choice_video_ids)
-
-    # Pair x L x T x 3 x H x W
-    video = np.zeros((len(choice_video_ids), args.max_frames, 1, 3,
-                      rawVideoExtractor.size, rawVideoExtractor.size), dtype=np.float)
-
-    for i, video_id in enumerate(choice_video_ids):
-        #video_path = self.video_dict[video_id]
-        #video_path = f'/playpen-storage/mmiemon/ego4d/data/v1/clips_fps_3_224/{video_id}.mp4'
-        video_path = f'/playpen-storage/mmiemon/ego4d/data/v1/ego4d_clips_fps_10_224/{video_id}.mp4'
-
-        raw_video_data = rawVideoExtractor.get_video_data(video_path, start_time, end_time)
-        raw_video_data = raw_video_data['video']
-
-        if len(raw_video_data.shape) > 3:
-            raw_video_data_clip = raw_video_data
-            # L x T x 3 x H x W
-            raw_video_slice = rawVideoExtractor.process_raw_data(raw_video_data_clip)
-            if args.max_frames < raw_video_slice.shape[0]:
-                if args.slice_framepos == 0:
-                    video_slice = raw_video_slice[:args.max_frames, ...]
-                elif args.slice_framepos == 1:
-                    video_slice = raw_video_slice[-args.max_frames:, ...]
-                else:
-                    sample_indx = np.linspace(0, raw_video_slice.shape[0] - 1, num=args.max_frames, dtype=int)
-                    video_slice = raw_video_slice[sample_indx, ...]
-            else:
-                video_slice = raw_video_slice
-
-            video_slice = rawVideoExtractor.process_frame_order(video_slice, frame_order=args.eval_frame_order)
-
-            slice_len = video_slice.shape[0]
-            max_video_length[i] = max_video_length[i] if max_video_length[i] > slice_len else slice_len
-            if slice_len < 1:
-                pass
-            else:
-                video[i][:slice_len, ...] = video_slice
-        else:
-            print("video path: {} error. video id: {}".format(video_path, video_id))
-
-    for i, v_length in enumerate(max_video_length):
-        video_mask[i][:v_length] = [1] * v_length
-
-    return video, video_mask
-
-class PredictionDataset(Dataset):
-    def __init__(self,pred_datum, topK, args, rawVideoExtractor, choice_video_ids):
-        self.pred_datum = pred_datum
-        self.topK = topK
-        self.args = args
-        self.rawVideoExtractor = rawVideoExtractor
-        self.choice_video_ids = choice_video_ids
-    def __len__(self):
-        return self.topK
-
-    def __getitem__(self, i):
-        s = math.floor(self.pred_datum['predicted_times'][i][0])
-        e = min(math.ceil(self.pred_datum['predicted_times'][i][1]), s + 30)
-        video, video_mask = _get_rawvideo(self.args, self.rawVideoExtractor, self.choice_video_ids, s, e)
-
-        return video, video_mask
-
-def rerank_predictions(args, model, predictions, device, n_gpu, tokenizer, rawVideoExtractor):
-    with open('/playpen-storage/mmiemon/ego4d/data/annotations/nlq_val_10s.json') as file_id:
-        ground_truth = json.load(file_id)
-
-    gt_dict = {}
-    for video_datum in ground_truth["videos"]:
-        for clip_datum in video_datum["clips"]:
-            clip_uid = clip_datum["clip_uid"]
-            for ann_datum in clip_datum["annotations"]:
-                key = (clip_uid, ann_datum["annotation_uid"])
-                gt_dict[key] = ann_datum
-
-    for cnt, pred_datum in enumerate(predictions):
-        key = (pred_datum["clip_uid"], pred_datum["annotation_uid"])
-        assert key in gt_dict, "Instance not present!"
-        query_id = pred_datum["query_idx"]
-        gt_datum = gt_dict[key]
-        #gt_query_datum = gt_datum["language_queries"][query_id]
-        # print(gt_query_datum)
-        print(cnt, pred_datum['clip_uid'], len(pred_datum['predicted_times']))
-        query = gt_datum["language_queries"][query_id]['query']
-        pairs_text, pairs_mask, pairs_segment, choice_video_ids = _get_text(args, tokenizer, pred_datum['clip_uid'], query)
-        print(cnt, pairs_text.shape, pairs_mask.shape, pairs_segment.shape) #(1, 32) (1, 32) (1, 32)
-        pairs_text = torch.from_numpy(pairs_text).to(device)
-        pairs_mask = torch.from_numpy(pairs_mask).to(device)
-        pairs_segment = torch.from_numpy(pairs_segment).to(device)
-        sequence_output = model.get_sequence_output(pairs_text, pairs_segment, pairs_mask, shaped=True)
-        print(cnt, 'sequence_output', sequence_output.shape) #(1, 1, 512)
-
-        batch_list_t = []
-        batch_list_v = []
-        batch_sequence_output_list, batch_visual_output_list = [], []
-
-        batch_sequence_output_list.append(sequence_output)
-        batch_list_t.append((pairs_mask, pairs_segment,))
-
-        topk = 50
-        predictionDataset = PredictionDataset(pred_datum, topk, args, rawVideoExtractor, choice_video_ids)
-        prediction_loader = DataLoader(
-            predictionDataset,
-            batch_size=12,
-            num_workers=8,
-            pin_memory=False,
-            shuffle=False
-        )
-
-        for j, (video_batch, video_mask_batch) in enumerate(prediction_loader):
-        # topk = 50
-        # batch_size = 12
-        # for j in range(topk//batch_size+1):
-        #     video_batch = []
-        #     video_mask_batch = []
-        #     for i in range(j*batch_size, min((j+1)*batch_size, topk)):
-        #         s = math.floor(pred_datum['predicted_times'][i][0])
-        #         e = min(math.ceil(pred_datum['predicted_times'][i][1]), s + 30)
-        #         video, video_mask = _get_rawvideo(args, rawVideoExtractor, choice_video_ids, s, e)
-        #         video_batch.append(video)
-        #         video_mask_batch.append(video_mask)
-            video_batch = np.asarray(video_batch)
-            video_mask_batch = np.asarray(video_mask_batch)
-            #print(video_batch.shape, video_mask_batch.shape) #(50, 1, 12, 1, 3, 224, 224) (50, 1, 12)
-
-            video_mask_batch = torch.from_numpy(video_mask_batch).to(device)
-            video_mask_batch = video_mask_batch.view(-1, video_mask_batch.shape[-1]) #(B, 12)
-            #print(video_batch.shape, video_mask_batch.shape)  # (B, 1, 12, 1, 3, 224, 224) (50, 1, 12)
-
-            video_batch = torch.as_tensor(video_batch).float().to(device)
-            b, pair, bs, ts, channel, h, w = video_batch.shape
-            video_batch = video_batch.view(b * pair * bs * ts, channel, h, w)
-            video_frame = bs * ts
-            visual_output = model.get_visual_output(video_batch, video_mask_batch, shaped=True, video_frame=video_frame)
-            print(cnt, 'visual_output', j, visual_output.shape, video_mask_batch.shape) #(B, 12, 512) (B, 12)
-
-            batch_visual_output_list.append(visual_output.detach().cpu())
-            batch_list_v.append((video_mask_batch.detach().cpu(),))
-
-        sim_matrix = _run_on_single_gpu(model, batch_list_t, batch_list_v, batch_sequence_output_list,
-                                        batch_visual_output_list)
-        sim_matrix = np.concatenate(tuple(sim_matrix), axis=0)
-        gt_query_datum = gt_datum["language_queries"][query_id]
-        print(cnt, gt_query_datum)
-        print(cnt, pred_datum['predicted_times'][:10])
-        pred_datum['predicted_times'] = np.asarray(pred_datum['predicted_times'])
-        # print(sim_matrix)
-        sim_matrix = sim_matrix[0]
-        idx = np.argsort(-sim_matrix)
-        pred_datum['predicted_times'][:topk] = pred_datum['predicted_times'][:topk][idx]
-        pred_datum['predicted_times'] = pred_datum['predicted_times'].tolist()
-        print(cnt, pred_datum['predicted_times'][:10])
-        with open(f'outputs/vslnet_predictions_clip4clip_nms_fps_10/{args.start_pred_index + cnt}.json', "w") as file_id:
-            json.dump(pred_datum, file_id)
-
-    return predictions
-
 def main():
     global logger
     args = get_args()
@@ -707,9 +493,6 @@ def main():
 
     assert args.task_type == "retrieval"
     model = init_model(args, device, n_gpu, args.local_rank)
-
-    model.training = False
-    print('training', args.do_train, model.training)
 
     ## ####################################
     # freeze testing
@@ -732,11 +515,11 @@ def main():
                 # paramenters which < freeze_layer_num will be freezed
                 param.requires_grad = False
 
-    # ## ####################################
-    # # dataloader loading
-    # ## ####################################
-    # assert args.datatype in DATALOADER_DICT
-    #
+    ## ####################################
+    # dataloader loading
+    ## ####################################
+    assert args.datatype in DATALOADER_DICT
+
     # assert DATALOADER_DICT[args.datatype]["test"] is not None \
     #        or DATALOADER_DICT[args.datatype]["val"] is not None
     #
@@ -748,8 +531,8 @@ def main():
     #     val_dataloader, val_length = DATALOADER_DICT[args.datatype]["val"](args, tokenizer, subset="val")
     # else:
     #     val_dataloader, val_length = test_dataloader, test_length
-
-    ## report validation results if the ["test"] is None
+    #
+    # ## report validation results if the ["test"] is None
     # if test_dataloader is None:
     #     test_dataloader, test_length = val_dataloader, val_length
     #
@@ -760,28 +543,65 @@ def main():
     #     logger.info("  Num steps = %d", len(test_dataloader))
     #     logger.info("***** Running val *****")
     #     logger.info("  Num examples = %d", val_length)
-    #
-    with open('../VSLNet/checkpoints/nlq_official_clip_10s/vslnet_nlq_official_clip_10s_video_swin_512_bert/model/vslnet_29455_test_result.json') as file_id:
-        json_dict = json.load(file_id)
 
-    predictions = json_dict["results"]
-    predictions = predictions[args.start_pred_index:args.start_pred_index+400]
+    ## ####################################
+    # train and eval
+    ## ####################################
+    if args.do_train:
+        train_dataloader, train_length, train_sampler = DATALOADER_DICT[args.datatype]["train"](args, tokenizer)
+        num_train_optimization_steps = (int(len(train_dataloader) + args.gradient_accumulation_steps - 1)
+                                        / args.gradient_accumulation_steps) * args.epochs
 
-    rawVideoExtractor = RawVideoExtractor(framerate=args.feature_framerate, size=args.image_resolution)
-    predictions = rerank_predictions(args, model, predictions, device, n_gpu, tokenizer, rawVideoExtractor)
-    result_save_path = f'outputs/vslnet_predictions_clip4clip_nms_fps_10/{args.start_pred_index}_{args.start_pred_index+399}.json'
+        coef_lr = args.coef_lr
+        optimizer, scheduler, model = prep_optimizer(args, model, num_train_optimization_steps, device, n_gpu,
+                                                     args.local_rank, coef_lr=coef_lr)
 
-    with open(result_save_path, "w") as file_id:
-        json.dump(
-            {
-                "version": "1.0",
-                "challenge": "ego4d_nlq_challenge",
-                "results": predictions,
-            }, file_id
-        )
+        if args.local_rank == 0:
+            logger.info("***** Running training *****")
+            logger.info("  Num examples = %d", train_length)
+            logger.info("  Batch size = %d", args.batch_size)
+            logger.info("  Num steps = %d", num_train_optimization_steps * args.gradient_accumulation_steps)
 
-    # if args.local_rank == 0:
-    #     eval_epoch(args, model, test_dataloader, device, n_gpu)
+        best_score = 0.00001
+        best_output_model_file = "None"
+        ## ##############################################################
+        # resume optimizer state besides loss to continue train
+        ## ##############################################################
+        resumed_epoch = 0
+        if args.resume_model:
+            checkpoint = torch.load(args.resume_model, map_location='cpu')
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            resumed_epoch = checkpoint['epoch'] + 1
+            resumed_loss = checkpoint['loss']
+
+        global_step = 0
+        for epoch in range(resumed_epoch, args.epochs):
+            train_sampler.set_epoch(epoch)
+            tr_loss, global_step = train_epoch(epoch, args, model, train_dataloader, device, n_gpu, optimizer,
+                                               scheduler, global_step, local_rank=args.local_rank)
+            if args.local_rank == 0:
+                logger.info("Epoch %d/%s Finished, Train Loss: %f", epoch + 1, args.epochs, tr_loss)
+
+                output_model_file = save_model(epoch, args, model, optimizer, tr_loss, type_name="")
+
+                ## Run on val dataset, this process is *TIME-consuming*.
+                # logger.info("Eval on val dataset")
+                # R1 = eval_epoch(args, model, val_dataloader, device, n_gpu)
+
+                # R1 = eval_epoch(args, model, test_dataloader, device, n_gpu)
+                # if best_score <= R1:
+                #     best_score = R1
+                #     best_output_model_file = output_model_file
+                # logger.info("The best model is: {}, the R1 is: {:.4f}".format(best_output_model_file, best_score))
+
+        # Uncomment if want to test on the best checkpoint
+        # if args.local_rank == 0:
+        #     model = load_model(-1, args, n_gpu, device, model_file=best_output_model_file)
+        #     eval_epoch(args, model, test_dataloader, device, n_gpu)
+
+    elif args.do_eval:
+        if args.local_rank == 0:
+            eval_epoch(args, model, test_dataloader, device, n_gpu)
 
 
 if __name__ == "__main__":

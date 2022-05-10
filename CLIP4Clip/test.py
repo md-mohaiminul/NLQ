@@ -1,16 +1,27 @@
-import json
-from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
+from dataloaders.data_loader_ego4d_negative_retrieval import Ego4d_DataLoader
+from modules.tokenization_clip import SimpleTokenizer as ClipTokenizer
+import timeit
+from torch.utils.data import Dataset, DataLoader
 
-root = '/playpen-storage/mmiemon/ego4d/data/v1/full_scale'
-data_json = '/playpen-storage/mmiemon/ego4d/data/annotations/nlq_val.json'
-with open(data_json, mode="r", encoding="utf-8") as f:
-    data = json.load(f)['videos']
+tokenizer = ClipTokenizer()
 
-for cnt, video_datum in enumerate(data):
-    video_file = f'{root}/{video_datum["video_uid"]}.mp4'
-    for clip_datum in video_datum["clips"]:
-        clip_uid = clip_datum["clip_uid"]
-        save_path = f'/playpen-storage/mmiemon/ego4d/data/v1/ego4d_clips/{clip_uid}.mp4'
-        ffmpeg_extract_subclip(video_file, clip_datum["video_start_sec"], clip_datum["video_end_sec"],
-                               targetname=save_path)
-        print(cnt, video_datum["video_uid"], clip_uid)
+dataset = Ego4d_DataLoader(subset = 'train', data_path = '/playpen-storage/mmiemon/ego4d/data/annotations',
+                           features_path = '/playpen-storage/mmiemon/ego4d/data/v1/clips_fps_3_224',
+                           tokenizer = tokenizer, max_frames=12)
+
+print(len(dataset))
+if __name__ == '__main__':
+    # pairs_text, pairs_mask, pairs_segment, video, video_mask, negative_videos, negative_video_masks = dataset.__getitem__(100)
+    dataloader = DataLoader(
+        dataset,
+        batch_size=6,
+        num_workers=12
+    )
+    start = timeit.default_timer()
+    pairs_text, pairs_mask, pairs_segment, video, video_mask, negative_videos, negative_video_masks = next(iter(dataloader))
+    stop = timeit.default_timer()
+    print('Time: ', stop - start)
+    # for batch in dataloader:
+    #     pairs_text, pairs_mask, pairs_segment, video, video_mask, negative_videos, negative_video_masks = batch
+    #     print(pairs_text.shape, pairs_mask.shape, pairs_segment.shape, video.shape, video_mask.shape, negative_videos.shape, negative_video_masks.shape)
+    #     break

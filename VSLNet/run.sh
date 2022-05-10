@@ -31,16 +31,17 @@ python utils/prepare_ego4d_dataset.py \
 #    --eval_gt_json "data/nlq_val.json"
 
 #best result: checkpoints/vslnet_nlq_official_v1_video_swin_512_bert
-#python main.py \
-#    --task nlq_official_v1 \
-#    --predictor bert \
-#    --mode test \
-#    --video_feature_dim 1024 \
-#    --dim 128 \
-#    --max_pos_len 512 \
-#    --fv video_swin \
-#    --model_dir checkpoints/ \
-#    --eval_gt_json "data/nlq_val.json"
+python main.py \
+    --task nlq_official_v1 \
+    --predictor bert \
+    --mode test \
+    --video_feature_dim 1024 \
+    --dim 128 \
+    --max_pos_len 512 \
+    --fv video_swin \
+    --model_dir checkpoints/ \
+    --nms_th 0.5 \
+    --eval_gt_json "data/nlq_val.json"
 
 #python main.py \
 #    --task nlq_official_v1 \

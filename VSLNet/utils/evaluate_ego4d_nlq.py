@@ -97,6 +97,9 @@ def evaluate_nlq_performance(
         gt_datum = gt_dict[key]
         gt_query_datum = gt_datum["language_queries"][query_id]
 
+        if 'slot_x' in gt_query_datum and 'slot_y' in gt_query_datum:
+            continue
+
         # nms_predictions, count = nms(torch.tensor(pred_datum["predicted_times"]), torch.tensor(pred_datum["scores"]))
         #
         # counts.append(count)

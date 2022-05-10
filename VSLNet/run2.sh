@@ -19,5 +19,6 @@ python main.py \
     --dim 128 \
     --max_pos_len 512 \
     --fv video_swin \
+    --nms_th 0.5 \
     --model_dir checkpoints/nlq_official_clip_10s \
     --eval_gt_json "/playpen-storage/mmiemon/ego4d/data/annotations/nlq_val_10s.json"

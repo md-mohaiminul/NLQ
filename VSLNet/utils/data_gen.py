@@ -305,9 +305,9 @@ def gen_or_load_dataset(configs):
             )
             + ".pkl",
         )
-    if os.path.exists(save_path):
-        dataset = load_pickle(save_path)
-        return dataset
+    # if os.path.exists(save_path):
+    #     dataset = load_pickle(save_path)
+    #     return dataset
     feat_len_path = os.path.join(feature_dir, "feature_shapes.json")
     emb_path = os.path.join("data", "features", "glove.840B.300d.txt")
     # load video feature length

@@ -2,9 +2,27 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b5756efd-4717-439b-9de5-0e229bc3db80" name="Changes" comment="Changes">
+      <change afterPath="$PROJECT_DIR$/CLIP4Clip/dataloaders/data_loader_ego4d_same_video.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CLIP4Clip/main_task_retrieval_same_video.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CLIP4Clip/modules/modeling_same_video.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/VSLNet/classification_x_y.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/VSLNet/create_negative_for_train_set.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/VSLNet/ranking_clip_smilarity.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLIP4Clip/clip4clip_reranking2.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/clip4clip_reranking2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLIP4Clip/dataloaders/data_dataloaders.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/dataloaders/data_dataloaders.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLIP4Clip/modules/modeling.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/modules/modeling.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLIP4Clip/preprocess/compress_video.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/preprocess/compress_video.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CLIP4Clip/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/run.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLIP4Clip/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CLIP4Clip/test2.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/test2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/nms_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/nms_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/options.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/options.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/run.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/run2.sh" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/run2.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/utils/data_gen.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/utils/data_gen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNet/utils/evaluate_ego4d_nlq.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/utils/evaluate_ego4d_nlq.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,10 +57,11 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/CLIP4Clip/test.py" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RunManager">
-    <configuration name="test2" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+    <configuration name="test" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="NLQ" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -55,7 +74,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/CLIP4Clip/test2.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/CLIP4Clip/test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -118,6 +137,20 @@
       <workItem from="1651080497148" duration="1367000" />
       <workItem from="1651083530069" duration="9600000" />
       <workItem from="1651108799209" duration="5266000" />
+      <workItem from="1651256998792" duration="2369000" />
+      <workItem from="1651274928401" duration="2812000" />
+      <workItem from="1651425227241" duration="3039000" />
+      <workItem from="1651460462315" duration="12831000" />
+      <workItem from="1651630863713" duration="4851000" />
+      <workItem from="1651680201267" duration="8829000" />
+      <workItem from="1651709378188" duration="16165000" />
+      <workItem from="1651769501713" duration="4102000" />
+      <workItem from="1651808330284" duration="10192000" />
+      <workItem from="1651820285255" duration="998000" />
+      <workItem from="1651954541592" duration="25618000" />
+      <workItem from="1652020279416" duration="160000" />
+      <workItem from="1652025339333" duration="2641000" />
+      <workItem from="1652073362404" duration="7377000" />
     </task>
     <servers />
   </component>
@@ -146,15 +179,6 @@
         </breakpoint>
       </default-breakpoints>
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="PythonConfigurationType">
-        <watch expression="config.DATASET.NEGWINDOW" language="Python" />
-        <watch expression="overlap[0]" language="Python" />
-        <watch expression="start_prob.unsqueeze(dim=2)" language="Python" />
-        <watch expression="outer_flat[i][flat_indices[i]]" language="Python" />
-        <watch expression="start_prob[i][start_indices[i]]*end_prob[i][end_indices[i]]-scores[i]" language="Python" />
-      </configuration>
-    </watches-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/NLQ$main.coverage" NAME="main Coverage Results" MODIFIED="1650144416392" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/VSLNet" />
@@ -162,5 +186,6 @@
     <SUITE FILE_PATH="coverage/NLQ$test2.coverage" NAME="test2 Coverage Results" MODIFIED="1651044537823" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CLIP4Clip" />
     <SUITE FILE_PATH="coverage/NLQ$inference_ego4d_debug.coverage" NAME="main Coverage Results" MODIFIED="1650263264696" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/VSLNet" />
     <SUITE FILE_PATH="coverage/NLQ$train.coverage" NAME="train Coverage Results" MODIFIED="1649719121385" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/moment_detr" />
+    <SUITE FILE_PATH="coverage/NLQ$test.coverage" NAME="test Coverage Results" MODIFIED="1651638737948" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CLIP4Clip" />
   </component>
 </project>

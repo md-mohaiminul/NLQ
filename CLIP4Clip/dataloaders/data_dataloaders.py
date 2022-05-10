@@ -7,6 +7,7 @@ from dataloaders.dataloader_lsmdc_retrieval import LSMDC_DataLoader
 from dataloaders.dataloader_activitynet_retrieval import ActivityNet_DataLoader
 from dataloaders.dataloader_didemo_retrieval import DiDeMo_DataLoader
 from dataloaders.data_loader_ego4d_retrieval import Ego4d_DataLoader
+from dataloaders.data_loader_ego4d_same_video import Ego4d_DataLoader_same_video
 
 def dataloader_msrvtt_train(args, tokenizer):
     msrvtt_dataset = MSRVTT_TrainDataLoader(
@@ -295,6 +296,32 @@ def dataloader_ego4d_test(args, tokenizer, subset="val"):
     )
     return dataloader_ego4d, len(ego4d_testset)
 
+def dataloader_ego4d_train_same_video(args, tokenizer):
+    ego4d_dataset = Ego4d_DataLoader_same_video(
+        subset="train",
+        data_path=args.data_path,
+        features_path=args.features_path,
+        max_words=args.max_words,
+        feature_framerate=args.feature_framerate,
+        tokenizer=tokenizer,
+        max_frames=args.max_frames,
+        frame_order=args.train_frame_order,
+        slice_framepos=args.slice_framepos,
+    )
+
+    train_sampler = torch.utils.data.distributed.DistributedSampler(ego4d_dataset)
+    dataloader = DataLoader(
+        ego4d_dataset,
+        batch_size=args.batch_size // args.n_gpu,
+        num_workers=args.num_thread_reader,
+        pin_memory=False,
+        shuffle=(train_sampler is None),
+        sampler=train_sampler,
+        drop_last=True,
+    )
+
+    return dataloader, len(ego4d_dataset), train_sampler
+
 
 DATALOADER_DICT = {}
 DATALOADER_DICT["msrvtt"] = {"train":dataloader_msrvtt_train, "val":dataloader_msrvtt_test, "test":None}
@@ -303,3 +330,5 @@ DATALOADER_DICT["lsmdc"] = {"train":dataloader_lsmdc_train, "val":dataloader_lsm
 DATALOADER_DICT["activity"] = {"train":dataloader_activity_train, "val":dataloader_activity_test, "test":None}
 DATALOADER_DICT["didemo"] = {"train":dataloader_didemo_train, "val":dataloader_didemo_test, "test":dataloader_didemo_test}
 DATALOADER_DICT["ego4d"] = {"train":dataloader_ego4d_train, "val":dataloader_ego4d_test, "test":None}
+DATALOADER_DICT["ego4d"] = {"train":dataloader_ego4d_train, "val":dataloader_ego4d_test, "test":None}
+DATALOADER_DICT["ego4d_same"] = {"train":dataloader_ego4d_train_same_video, "val":None, "test":None}
