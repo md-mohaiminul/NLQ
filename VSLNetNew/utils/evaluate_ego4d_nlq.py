@@ -9,13 +9,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import argparse
 import json
-import math
-import random
 
 import numpy as np
 import terminaltables
-import torch
-from utils.nms import nms, softnms_v2
 
 
 def display_results(results, mIoU, thresholds, topK, title=None):
@@ -54,16 +50,11 @@ def compute_IoU(pred, gt):
     union_left = np.minimum(pred[:, 0, None], gt[None, :, 0])
     union_right = np.maximum(pred[:, 1, None], gt[None, :, 1])
     union = np.maximum(0.0, union_right - union_left)
-
     overlap = 1.0 * inter / union
     if not gt_is_list:
         overlap = overlap[:, 0]
     if not pred_is_list:
         overlap = overlap[0]
-
-    # if gt[0][0]==gt[0][1]:
-    #     print(overlap)
-
     return overlap
 
 
@@ -77,7 +68,6 @@ def evaluate_nlq_performance(
     for video_datum in ground_truth["videos"]:
         for clip_datum in video_datum["clips"]:
             clip_uid = clip_datum["clip_uid"]
-            clip_duration = clip_datum["video_end_sec"] - clip_datum["video_start_sec"]
             for ann_datum in clip_datum["annotations"]:
                 key = (clip_uid, ann_datum["annotation_uid"])
                 gt_dict[key] = ann_datum
@@ -86,10 +76,6 @@ def evaluate_nlq_performance(
     results = [[[] for _ in topK] for _ in thresholds]
     average_IoU = []
     num_instances = 0
-
-    counts = []
-    gt_durations = []
-    pred_durations = []
     for pred_datum in predictions:
         key = (pred_datum["clip_uid"], pred_datum["annotation_uid"])
         assert key in gt_dict, "Instance not present!"
@@ -97,38 +83,16 @@ def evaluate_nlq_performance(
         gt_datum = gt_dict[key]
         gt_query_datum = gt_datum["language_queries"][query_id]
 
-        # if 'slot_x' in gt_query_datum and 'slot_y' in gt_query_datum:
-        #     continue
-
-        # nms_predictions, count = nms(torch.tensor(pred_datum["predicted_times"]), torch.tensor(pred_datum["scores"]))
-        #
-        # counts.append(count)
-
-        #Compute overlap and recalls.
+        # Compute overlap and recalls.
         overlap = compute_IoU(
             pred_datum["predicted_times"],
             [[gt_query_datum["clip_start_sec"], gt_query_datum["clip_end_sec"]]],
         )
-
-        # overlap = compute_IoU(
-        #     nms_predictions.tolist(),
-        #     [[gt_query_datum["clip_start_sec"], gt_query_datum["clip_end_sec"]]],
-        # )
-
         average_IoU.append(np.mean(np.sort(overlap[0])[-3:]))
         for tt, threshold in enumerate(thresholds):
             for rr, KK in enumerate(topK):
                 results[tt][rr].append((overlap > threshold)[:KK].any())
-                # if (overlap[0] > 0.1) and (overlap[0] < 0.3):
-                #     print(gt_query_datum["clip_start_sec"], gt_query_datum["clip_end_sec"],
-                #           pred_datum["predicted_times"][0])
-                #     gt_durations.append(gt_query_datum["clip_end_sec"]-gt_query_datum["clip_start_sec"])
-                #     pred_durations.append(pred_datum["predicted_times"][0][1]-pred_datum["predicted_times"][0][0])
         num_instances += 1
-
-    #print(min(counts), max(counts), sum(counts)/len(counts))
-    # print('gt', sum(gt_durations) / len(gt_durations))
-    # print('pred', sum(pred_durations) / len(pred_durations))
 
     mean_results = np.array(results).mean(axis=-1)
     mIoU = np.mean(average_IoU)

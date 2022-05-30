@@ -22,11 +22,13 @@ model = init_recognizer(config_file, checkpoint_file, device=device)
 avg_pool = nn.AdaptiveAvgPool3d((1, 1, 1)).to(device)
 
 root = '/playpen-storage/mmiemon/ego4d/data/v1/full_scale'
-data_json = '/playpen-storage/mmiemon/ego4d/data/annotations/nlq_train.json'
+data_json = '/playpen-storage/mmiemon/ego4d/Ego4d/annotations/v1/annotations/nlq_test_unannotated.json'
 with open(data_json, mode="r", encoding="utf-8") as f:
     data = json.load(f)['videos']
 
 random.shuffle(data)
+
+print(len(data))
 
 cnt = 0
 for video_datum in data:
@@ -34,8 +36,8 @@ for video_datum in data:
     video = VideoFileClip(video_file)
     print(video_file)
     for clip_datum in video_datum["clips"]:
-        cnt += 1
         clip_uid = clip_datum["clip_uid"]
+        cnt += 1
         save_path = f'/playpen-storage/mmiemon/ego4d/data/v1/video_swin/{clip_uid}.pt'
         if os.path.exists(save_path):
             continue
@@ -61,7 +63,7 @@ for video_datum in data:
             features = avg_pool(features).view(features.shape[0], -1).detach().cpu()
             all_features = torch.cat((all_features, features), 0)
 
-            print('Clip ', clip_uid, cnt, '/', 998, ' frame start ', start, '/', n_frames)
+            print('Clip ', clip_uid, cnt, '/', 333, ' frame start ', start, '/', n_frames)
 
         torch.save(all_features, save_path)
 

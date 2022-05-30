@@ -77,16 +77,16 @@ for k in result:
 
 print(result)
 
-validation set:
-total x: 3651, unique x: 2110
-classification x topk: {1: 1.42, 5: 5.94, 10: 9.69, 20: 14.51, 50: 22.78}
-total y: 1257, unique y: 724
-classification y topk: {1: 2.54, 5: 7.15, 10: 9.78, 20: 13.36, 50: 20.36}
-
-train set:
-total x: 10778, unique x: 4979
-classification x topk: {1: 0.60, 5: 2.72, 10: 5.01, 20: 8.05, 50: 13.98}
-total y: 3458, unique y: 1934
-classification y topk: {1: 1.21, 5: 3.87, 10: 6.36, 20: 9.54, 50: 15.58}
+# validation set:
+# total x: 3651, unique x: 2110
+# classification x topk: {1: 1.42, 5: 5.94, 10: 9.69, 20: 14.51, 50: 22.78}
+# total y: 1257, unique y: 724
+# classification y topk: {1: 2.54, 5: 7.15, 10: 9.78, 20: 13.36, 50: 20.36}
+#
+# train set:
+# total x: 10778, unique x: 4979
+# classification x topk: {1: 0.60, 5: 2.72, 10: 5.01, 20: 8.05, 50: 13.98}
+# total y: 3458, unique y: 1934
+# classification y topk: {1: 1.21, 5: 3.87, 10: 6.36, 20: 9.54, 50: 15.58}
 
 
