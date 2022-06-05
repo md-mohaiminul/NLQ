@@ -1,11 +1,11 @@
 python -m torch.distributed.launch --nproc_per_node=8 \
-main_task_retrieval_same_video.py --do_train --num_thread_reader=2 \
+main_task_retrieval.py --do_train --num_thread_reader=2 \
 --epochs=5 --batch_size=16 --n_display=50 \
 --data_path /playpen-storage/mmiemon/ego4d/data/annotations/ \
---features_path /playpen-storage/mmiemon/ego4d/data/v1/clips_fps_3_224 \
+--features_path /playpen-storage/mmiemon/ego4d/data/v1/full_scale_fps_3 \
 --output_dir ckpts/same_video/ \
 --lr 1e-4 --max_words 32 --max_frames 12 --batch_size_val 16 \
---datatype ego4d_same \
+--datatype ego4d \
 --feature_framerate 3 --coef_lr 1e-3 \
 --freeze_layer_num 0  --slice_framepos 2 \
 --loose_type --linear_patch 2d --sim_header meanP \

@@ -171,13 +171,14 @@ class ClipEmbedding(nn.Module):
         import clip
         self.embedder, _ = clip.load("ViT-L/14", jit=False)
 
-        # Freeze the model.
+        #Freeze the model.
         for param in self.embedder.parameters():
             param.requires_grad = False
 
     def forward(self, word_ids):
         outputs = self.embedder.encode_text(word_ids)
         return outputs["last_hidden_state"].detach()
+        #return outputs["last_hidden_state"]
 
 
 class PositionalEmbedding(nn.Module):

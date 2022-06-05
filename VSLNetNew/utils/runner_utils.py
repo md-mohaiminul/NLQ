@@ -15,7 +15,7 @@ from utils.data_util import index_to_time
 
 
 def set_th_config(seed):
-    #random.seed(seed)
+    random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)

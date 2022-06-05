@@ -2,26 +2,59 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b5756efd-4717-439b-9de5-0e229bc3db80" name="Changes" comment="Changes">
-      <change afterPath="$PROJECT_DIR$/VSLNetNew/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TimeSformer/create_fho_clips.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TimeSformer/create_fho_dataset.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TimeSformer/generates_submission.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TimeSformer/test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/VSLNetNew/combine_vslnet_clip_features.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/VSLNetNew/prepare_shape_json_file.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/VSLNetNew/ranking_clip_similarity.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/VSLNetNew/run_train3.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/VSLNetNew/run_train4.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VSLNet/classification_x_y.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/classification_x_y.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VSLNet/extract_clip_features.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/extract_clip_features.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VSLNet/extract_video_swin_features.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/extract_video_swin_features.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VSLNet/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/run.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VSLNet/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VSLNet/utils/evaluate_ego4d_nlq.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNet/utils/evaluate_ego4d_nlq.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLIP4Clip/create_ego4d_clips.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/create_ego4d_clips.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLIP4Clip/dataloaders/data_loader_ego4d_retrieval.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/dataloaders/data_loader_ego4d_retrieval.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLIP4Clip/main_task_retrieval.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/main_task_retrieval.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLIP4Clip/preprocess/compress_video.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/preprocess/compress_video.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLIP4Clip/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/run.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLIP4Clip/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/CLIP4Clip/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNetNew/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNetNew/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNetNew/model/VSLNet.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNetNew/model/VSLNet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNetNew/model/layers.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNetNew/model/layers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNetNew/run_train.sh" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNetNew/run_train.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNetNew/run_train2.sh" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNetNew/run_train2.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNetNew/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNetNew/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNetNew/utils/data_gen.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNetNew/utils/data_gen.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNetNew/utils/data_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNetNew/utils/data_loader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNetNew/utils/data_util.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNetNew/utils/data_util.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNetNew/utils/prepare_ego4d_dataset.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNetNew/utils/prepare_ego4d_dataset.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/VSLNetNew/utils/runner_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/VSLNetNew/utils/runner_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
+  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Script" />
       </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
     </option>
   </component>
   <component name="Git.Settings">
@@ -153,6 +186,13 @@
       <workItem from="1653664215749" duration="26928000" />
       <workItem from="1653749380520" duration="42273000" />
       <workItem from="1653836831935" duration="25927000" />
+      <workItem from="1653886356631" duration="46916000" />
+      <workItem from="1654001641240" duration="6691000" />
+      <workItem from="1654015653473" duration="7036000" />
+      <workItem from="1654032997444" duration="37921000" />
+      <workItem from="1654091362564" duration="12754000" />
+      <workItem from="1654107229390" duration="15588000" />
+      <workItem from="1654266187151" duration="769000" />
     </task>
     <servers />
   </component>
@@ -183,11 +223,11 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/NLQ$main.coverage" NAME="main Coverage Results" MODIFIED="1650144416392" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/VSLNet" />
     <SUITE FILE_PATH="coverage/NLQ$inference_debug.coverage" NAME="inference_debug Coverage Results" MODIFIED="1650223498656" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/moment_detr" />
-    <SUITE FILE_PATH="coverage/NLQ$test2.coverage" NAME="test2 Coverage Results" MODIFIED="1651044537823" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CLIP4Clip" />
     <SUITE FILE_PATH="coverage/NLQ$inference_ego4d_debug.coverage" NAME="main Coverage Results" MODIFIED="1650263264696" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/VSLNet" />
-    <SUITE FILE_PATH="coverage/NLQ$train.coverage" NAME="train Coverage Results" MODIFIED="1649719121385" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/moment_detr" />
     <SUITE FILE_PATH="coverage/NLQ$test.coverage" NAME="test Coverage Results" MODIFIED="1651638737948" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CLIP4Clip" />
+    <SUITE FILE_PATH="coverage/NLQ$test2.coverage" NAME="test2 Coverage Results" MODIFIED="1651044537823" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/CLIP4Clip" />
+    <SUITE FILE_PATH="coverage/NLQ$main.coverage" NAME="main Coverage Results" MODIFIED="1650144416392" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/VSLNet" />
+    <SUITE FILE_PATH="coverage/NLQ$train.coverage" NAME="train Coverage Results" MODIFIED="1649719121385" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/moment_detr" />
   </component>
 </project>

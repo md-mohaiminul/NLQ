@@ -18,6 +18,8 @@ from modules.optimization import BertAdam
 from util import parallel_apply, get_logger
 from dataloaders.data_dataloaders import DATALOADER_DICT
 
+from tqdm import tqdm
+
 torch.distributed.init_process_group(backend="nccl")
 
 global logger
@@ -257,7 +259,7 @@ def train_epoch(epoch, args, model, train_dataloader, device, n_gpu, optimizer, 
     start_time = time.time()
     total_loss = 0
 
-    for step, batch in enumerate(train_dataloader):
+    for step, batch in enumerate(tqdm(train_dataloader)):
         if n_gpu == 1:
             # multi-gpu does scattering it-self
             batch = tuple(t.to(device=device, non_blocking=True) for t in batch)
@@ -356,7 +358,7 @@ def eval_epoch(args, model, test_dataloader, device, n_gpu):
         # ----------------------------
         # 1. cache the features
         # ----------------------------
-        for bid, batch in enumerate(test_dataloader):
+        for bid, batch in enumerate(tqdm(test_dataloader)):
             batch = tuple(t.to(device) for t in batch)
             input_ids, input_mask, segment_ids, video, video_mask = batch
 

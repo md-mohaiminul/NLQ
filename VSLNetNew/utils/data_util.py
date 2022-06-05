@@ -8,6 +8,10 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
+def l2_normalize_np_array(np_array, eps=1e-5):
+    """np_array: np.ndarray, (*, D), where the last dim will be normalized"""
+    return np_array / (np.linalg.norm(np_array, axis=-1, keepdims=True) + eps)
+
 
 def load_json(filename):
     with open(filename, mode="r", encoding="utf-8") as f:
@@ -52,16 +56,23 @@ def load_video_features(root, max_position_length):
     for filename in tqdm(filenames, total=len(filenames), desc="load video features"):
         video_id = filename.split("/")[-1].split(".")[0]
         feature = torch.load(filename).numpy()
-        video_features[video_id] = feature
-        # if max_position_length is None:
-        #     video_features[video_id] = feature
-        # else:
-        #     new_feature = visual_feature_sampling(
-        #         feature, max_num_clips=max_position_length, sampling_strategy='random'
-        #     )
-        #     video_features[video_id] = new_feature
+        if max_position_length is None:
+            new_feature = feature
+        else:
+            new_feature = visual_feature_sampling(
+                feature, max_num_clips=max_position_length, sampling_strategy='mean'
+            )
+            #video_features[video_id] = new_feature
             # if new_feature.shape[0] != feature.shape[0]:
             #    print(f"Reduced: {feature.shape[0]} --> {new_feature.shape[0]}")
+        #new_feature = l2_normalize_np_array(new_feature)
+        feature2 = torch.load(f'/playpen-storage/mmiemon/ego4d/data/v1/clip/{video_id}.pt').numpy()
+        feature2 = visual_feature_sampling(feature2, max_num_clips=new_feature.shape[0], sampling_strategy='mean')
+        #feature2 = l2_normalize_np_array(feature2)
+        new_feature = np.concatenate((feature2, new_feature), axis=1)
+
+        video_features[video_id] = new_feature
+
     return video_features
 
 

@@ -10,43 +10,28 @@
 #checkpoints/clip_128_512_nce/model/vslnet_35200_test_result.json
 
 # To train the model.
-CUDA_VISIBLE_DEVICES=1 python main.py \
-    --exp clip_128_512_nce_random \
+CUDA_VISIBLE_DEVICES=0 python main.py \
+    --exp clip_video_swin_256_512_nce \
     --task nlq_official_v1 \
     --predictor clip \
     --bert_type base \
-    --mode train \
-    --video_feature_dim 768 \
-    --dim 128 \
+    --mode test \
+    --video_feature_dim 1792 \
+    --dim 256 \
     --max_pos_len 512 \
     --batch_size 32 \
     --epochs 200 \
-    --fv clip \
+    --fv video_swin \
     --num_workers 64 \
     --model_dir checkpoints/ \
     --eval_gt_json "/playpen-storage/mmiemon/ego4d/Ego4d/annotations/v1/annotations/nlq_val.json"
 
-#CUDA_VISIBLE_DEVICES=1 python main.py \
-#    --exp bert_large_128_512_random_mean \
-#    --task nlq_official_v1 \
-#    --predictor bert \
-#    --bert_type large \
-#    --mode test \
-#    --video_feature_dim 1024 \
-#    --dim 128 \
-#    --max_pos_len 512 \
-#    --epochs 200 \
-#    --fv video_swin \
-#    --num_workers 64 \
-#    --model_dir checkpoints/ \
-#    --eval_gt_json "/playpen-storage/mmiemon/ego4d/Ego4d/annotations/v1/annotations/nlq_val.json"
-
 #checkpoints/vslnet_nlq_official_v1_video_swin_512_bert/model/vslnet_43824_test_result.json
 
-#PRED_FILE="checkpoints/vslnet_nlq_official_v1_video_swin_512_bert/model"
+#PRED_FILE="checkpoints/clip_128_512_nce/model"
 #python utils/evaluate_ego4d_nlq.py \
-#    --ground_truth_json /playpen-storage/mmiemon/ego4d/data/annotations/nlq_val.json \
-#    --model_prediction_json checkpoints/vslnet_nlq_official_v1_video_swin_512_bert/model/vslnet_43824_test_result.json \
+#    --ground_truth_json /playpen-storage/mmiemon/ego4d/Ego4d/annotations/v1/annotations/nlq_val.json \
+#    --model_prediction_json checkpoints/clip_128_512_nce/model/vslnet_35200_test_result.json \
 #    --thresholds 0.3 0.5 \
 #    --topK 1 3 5
 

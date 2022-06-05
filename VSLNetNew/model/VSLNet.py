@@ -149,7 +149,6 @@ class VSLNet(nn.Module):
         # video_features = self.video_mlp(video_features)
 
         if self.configs.predictor == "bert" or self.configs.predictor == "clip":
-
             query_features = self.embedding_net(word_ids)
             query_features = query_features.float()
             query_features = self.query_affine(query_features)
@@ -163,6 +162,9 @@ class VSLNet(nn.Module):
 
         features = self.cq_attention(video_features, query_features, v_mask, q_mask)
         features = self.cq_concat(features, query_features, q_mask)
+
+        #print(query_features.shape, video_features.shape, features.shape)
+
         h_score = self.highlight_layer(features, v_mask)
         features = features * h_score.unsqueeze(2)
         start_logits, end_logits = self.predictor(features, mask=v_mask)
@@ -172,6 +174,7 @@ class VSLNet(nn.Module):
             mean_video = []
             for i in range (video_features.shape[0]):
                 mean_video.append(torch.mean(video_features[i][s_labels[i]:int(e_labels[i]+1)], dim=0))
+                #mean_video.append(torch.mean(features[i][s_labels[i]:int(e_labels[i] + 1)], dim=0))
             mean_video = torch.stack(mean_video)
 
             mean_query = self.query_proj_nce(mean_query)

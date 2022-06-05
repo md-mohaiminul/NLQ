@@ -58,20 +58,37 @@ class Ego4d_DataLoader(Dataset):
         self.sentences_dict = {}
         self.video_dict = {}
         for video_datum in split_data["videos"]:
+            video_uid = video_datum['video_uid']
             for clip_datum in video_datum["clips"]:
                 clip_uid = clip_datum["clip_uid"]
-                self.video_dict[clip_uid] = os.path.join(self.features_path, f'{clip_uid}.mp4')
+                #self.video_dict[clip_uid] = os.path.join(self.features_path, f'{clip_uid}.mp4')
+                self.video_dict[video_uid] = os.path.join(self.features_path, f'{video_uid}.mp4')
                 for ann_datum in clip_datum["annotations"]:
                     for index, datum in enumerate(ann_datum["language_queries"]):
                         if "query" not in datum or not datum["query"]:
                             continue
 
+                        # new_dict = {
+                        #     "video_id": clip_uid,
+                        #     "start_time": math.floor(datum["clip_start_sec"]),
+                        #     "end_time": math.ceil(datum["clip_end_sec"]),
+                        #     "sentence": process_question(datum["query"]),
+                        # }
+
+                        start_time = max(0, math.floor(datum["video_start_sec"]))
+                        end_time = max(start_time+1, math.ceil(datum["video_end_sec"]))
+                        end_time = min(end_time, start_time+50)
+
                         new_dict = {
-                            "video_id": clip_uid,
-                            "start_time": math.floor(datum["clip_start_sec"]),
-                            "end_time": math.ceil(datum["clip_end_sec"]),
+                            "video_id": video_uid,
+                            "start_time": start_time,
+                            "end_time": end_time,
                             "sentence": process_question(datum["query"]),
                         }
+
+                        if not (isinstance(start_time, int) and isinstance(end_time, int) \
+                               and start_time > -1 and end_time > start_time):
+                            print('Error', video_uid, start_time, end_time, datum['clip_start_sec'], datum['clip_end_sec'])
 
                         self.sentences_dict[len(self.sentences_dict)] = new_dict
 

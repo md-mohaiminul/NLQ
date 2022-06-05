@@ -223,6 +223,7 @@ def dataset_gen_bert(data, vfeat_lens, tokenizer, max_pos_len, scope, num_worker
         for record in tqdm(worker_data, total=len(worker_data), desc=description):
             vid = record["vid"]
             if vid not in vfeat_lens:
+                print('no length')
                 continue
 
             s_ind, e_ind, _ = time_to_index(
@@ -309,6 +310,8 @@ def gen_or_load_dataset(configs):
             )
             + ".pkl",
         )
+
+    print(save_path)
     if os.path.exists(save_path):
         dataset = load_pickle(save_path)
         return dataset
@@ -324,6 +327,8 @@ def gen_or_load_dataset(configs):
     train_data, val_data, test_data = processor.convert(
         data_dir, predictor=configs.predictor
     )
+
+    print('converted', len(train_data), len(val_data), len(test_data))
     # generate dataset
     data_list = (
         [train_data, test_data]
@@ -365,6 +370,7 @@ def gen_or_load_dataset(configs):
             "test",
             num_workers=configs.num_workers,
         )
+        print('sets', len(train_set), len(val_set), len(test_set))
         n_val = 0 if val_set is None else len(val_set)
         dataset = {
             "train_set": train_set,

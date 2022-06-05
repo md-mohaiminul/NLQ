@@ -16,7 +16,7 @@ class Dataset(torch.utils.data.Dataset):
         record = self.dataset[index]
         video_feature = self.video_features[record["vid"]]
 
-        video_feature = visual_feature_sampling(video_feature, self.max_pos_len, self.sampling_strategy)
+        #video_feature = visual_feature_sampling(video_feature, self.max_pos_len, self.sampling_strategy)
 
         s_ind, e_ind = int(record["s_ind"]), int(record["e_ind"])
         word_ids = record["w_ids"]
@@ -116,7 +116,7 @@ def test_collate_fn(data):
 
 
 def get_train_loader(dataset, video_features, configs):
-    train_set = Dataset(dataset=dataset, video_features=video_features, max_pos_len= configs.max_pos_len, sampling_strategy='random')
+    train_set = Dataset(dataset=dataset, video_features=video_features, max_pos_len= configs.max_pos_len, sampling_strategy='mean')
     train_loader = torch.utils.data.DataLoader(
         dataset=train_set,
         batch_size=configs.batch_size,

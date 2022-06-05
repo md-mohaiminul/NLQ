@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/NLQ.iml" filepath="$PROJECT_DIR$/.idea/NLQ.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Video/lvu_state_space/.idea/lvu_state_space.iml" filepath="$PROJECT_DIR$/../Video/lvu_state_space/.idea/lvu_state_space.iml" />
     </modules>
   </component>
 </project>

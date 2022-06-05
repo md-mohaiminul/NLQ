@@ -1,5 +1,7 @@
 """Main script to train/test models for Ego4D NLQ dataset.
 """
+import math
+
 import argparse
 import os
 
@@ -12,6 +14,7 @@ from tqdm import tqdm
 from utils.data_gen import gen_or_load_dataset
 from utils.data_loader import get_test_loader, get_train_loader
 from utils.data_util import load_json, load_video_features, save_json
+from torch.utils.data import TensorDataset, ConcatDataset, DataLoader
 from utils.runner_utils import (
     convert_length_to_mask,
     eval_test,
@@ -27,6 +30,8 @@ def main(configs, parser):
 
     # prepare or load dataset
     dataset = gen_or_load_dataset(configs)
+
+    print(len(dataset["test_set"]))
     configs.char_size = dataset.get("n_chars", -1)
     configs.word_size = dataset.get("n_words", -1)
 
@@ -53,6 +58,14 @@ def main(configs, parser):
     test_loader = get_test_loader(
         dataset=dataset["test_set"], video_features=visual_features, configs=configs
     )
+
+    train_val_dataset = ConcatDataset([dataset["train_set"], dataset["val_set"]])
+    train_val_loader = get_train_loader(
+        train_val_dataset, video_features=visual_features, configs=configs
+    )
+
+    print(len(train_loader), len(val_loader), len(test_loader), len(train_val_loader))
+    train_loader = train_val_loader
 
     configs.num_train_steps = len(train_loader) * configs.epochs
     num_train_batches = len(train_loader)
@@ -105,6 +118,14 @@ def main(configs, parser):
         model = VSLNet(
             configs=configs, word_vectors=dataset.get("word_vector", None)
         ).to(device)
+
+        #print(model.eval())
+        # for name, param in model.named_parameters():
+        #     if param.requires_grad:
+        #         print(name)
+        pytorch_total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+        print("Total trainable parameters", pytorch_total_params)  #428466692
 
         # model = nn.DataParallel(model)
 
@@ -198,7 +219,7 @@ def main(configs, parser):
                     print(
                         f"\nEpoch: {epoch + 1:2d} | Step: {global_step:5d}", flush=True
                     )
-                    print('Total loss: ', total_loss.item(), ' HL: ', highlight_loss.item()*configs.highlight_lambda, ' NCE: ', nce_loss.item())
+                    #print('Total loss: ', total_loss.item(), ' HL: ', highlight_loss.item()*configs.highlight_lambda, ' NCE: ', nce_loss.item())
 
                     result_save_path = os.path.join(
                         model_dir,
@@ -219,8 +240,20 @@ def main(configs, parser):
                     score_writer.write(score_str)
                     score_writer.flush()
                     # Recall@1, 0.3 IoU overlap --> best metric.
-                    if results[0][0] >= best_metric:
+                    # if results[0][0] >= best_metric:   # ([0][0] + [1][0])/2
+                    #     best_metric = results[0][0]
+                    #     torch.save(
+                    #         model.state_dict(),
+                    #         os.path.join(
+                    #             model_dir,
+                    #             "{}_{}.t7".format(configs.model_name, global_step),
+                    #         ),
+                    #     )
+                    #     # only keep the top-3 model checkpoints
+                    #     filter_checkpoints(model_dir, suffix="t7", max_to_keep=3)
+                    if results[0][0] >= best_metric:   # ([0][0] + [1][0])/2
                         best_metric = results[0][0]
+                    if (epoch+1)%20 == 0:
                         torch.save(
                             model.state_dict(),
                             os.path.join(
@@ -229,7 +262,7 @@ def main(configs, parser):
                             ),
                         )
                         # only keep the top-3 model checkpoints
-                        filter_checkpoints(model_dir, suffix="t7", max_to_keep=3)
+                        filter_checkpoints(model_dir, suffix="t7", max_to_keep=10)
                     model.train()
         score_writer.close()
 
@@ -261,9 +294,10 @@ def main(configs, parser):
             device=device,
             mode="test",
             result_save_path=result_save_path,
-            # gt_json_path = configs.eval_gt_json,
+            #gt_json_path = configs.eval_gt_json,
         )
         print(score_str, flush=True)
+        print(len(test_loader))
 
 
 if __name__ == "__main__":
